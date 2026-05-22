@@ -54,16 +54,14 @@ export async function searchActiveListings(player, set, condition, sport) {
   const q   = encodeURIComponent(`${player} ${set} ${condition} ${sportKeyword}`);
   const url = `${BASE_URL}/buy/browse/v1/item_summary/search`
     + `?q=${q}`
-    + `&category_ids=${SPORTS_CARDS_CATEGORY}`
     + `&limit=10&sort=price`
-    + `&filter=buyingOptions%3A%7BFIXED_PRICE%7D`;
 
   console.log('eBay Browse — recherche:', player, set);
 
   const res = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${token}`,
-      'X-EBAY-C-MARKETPLACE-ID': IS_SANDBOX ? 'EBAY_US' : 'EBAY_CA',
+      'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
       'X-EBAY-C-ENDUSERCTX': 'contextualLocation=country%3DCA',
     },
   });
