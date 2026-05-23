@@ -43,7 +43,7 @@ export async function getEbayToken() {
   return _cachedToken;
 }
 
-export async function searchActiveListings(player, set, condition, sport) {
+export async function searchActiveListings(player, set, condition, sport, year, cardNumber) {
   const token = await getEbayToken();
 
   const sportKeyword = {
@@ -51,17 +51,24 @@ export async function searchActiveListings(player, set, condition, sport) {
     NBA: 'basketball card', MLB: 'baseball card',
   }[sport] || 'sports card';
 
-  const q   = encodeURIComponent(`${player} ${set} ${condition} ${sportKeyword}`);
+  // Construit une requête précise avec année et numéro si disponibles
+  const yearPart   = year ? year : '';
+  const numPart    = cardNumber ? `#${cardNumber}` : '';
+  const q = encodeURIComponent(
+    `${player} ${yearPart} ${set} ${numPart} ${condition} ${sportKeyword}`.replace(/\s+/g, ' ').trim()
+  );
   const url = `${BASE_URL}/buy/browse/v1/item_summary/search`
     + `?q=${q}`
+    + `&category_ids=${SPORTS_CARDS_CATEGORY}`
     + `&limit=10&sort=price`
+    + `&filter=buyingOptions%3A%7BFIXED_PRICE%7D`;
 
   console.log('eBay Browse — recherche:', player, set);
 
   const res = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${token}`,
-      'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US',
+      'X-EBAY-C-MARKETPLACE-ID': IS_SANDBOX ? 'EBAY_US' : 'EBAY_CA',
       'X-EBAY-C-ENDUSERCTX': 'contextualLocation=country%3DCA',
     },
   });
@@ -100,19 +107,28 @@ export function computeStats(listings, cadUsdRate = 0.74) {
   };
 }
 
-export function buildEbaySoldUrl(player, set, condition) {
-  const q = encodeURIComponent(`${player} ${set} ${condition}`);
+export function buildEbaySoldUrl(player, set, condition, year, cardNumber) {
+  const num = cardNumber ? `#${cardNumber}` : '';
+  const yr  = year || '';
+  const q   = encodeURIComponent(`${player} ${yr} ${set} ${num} ${condition}`.replace(/\s+/g, ' ').trim());
   return `https://www.ebay.ca/sch/i.html?_nkw=${q}&_sacat=${SPORTS_CARDS_CATEGORY}&LH_Sold=1&LH_Complete=1&_sop=13`;
 }
 
-export function build130PointUrl(player, set) {
-  return `https://www.130point.com/sales/?q=${encodeURIComponent(`${player} ${set}`)}`;
+export function build130PointUrl(player, set, year, cardNumber) {
+  const num = cardNumber ? `#${cardNumber}` : '';
+  const yr  = year || '';
+  const q   = encodeURIComponent(`${player} ${yr} ${set} ${num}`.replace(/\s+/g, ' ').trim());
+  return `https://www.130point.com/sales/?q=${q}`;
 }
 
-export function buildEbayActiveUrl(player, set, condition) {
-  return `https://www.ebay.ca/sch/i.html?_nkw=${encodeURIComponent(`${player} ${set} ${condition}`)}&_sacat=${SPORTS_CARDS_CATEGORY}&_sop=15`;
+export function buildEbayActiveUrl(player, set, condition, year, cardNumber) {
+  const num = cardNumber ? `#${cardNumber}` : '';
+  const yr  = year || '';
+  const q   = encodeURIComponent(`${player} ${yr} ${set} ${num} ${condition}`.replace(/\s+/g, ' ').trim());
+  return `https://www.ebay.ca/sch/i.html?_nkw=${q}&_sacat=${SPORTS_CARDS_CATEGORY}&_sop=15`;
 }
 
-export function buildEbaySellUrl(player, set) {
-  return `https://www.ebay.ca/sell/sellflow?query=${encodeURIComponent(`${player} ${set}`)}`;
+export function buildEbaySellUrl(player, set, year) {
+  const yr = year || '';
+  return `https://www.ebay.ca/sell/sellflow?query=${encodeURIComponent(`${player} ${yr} ${set}`.trim())}`;
 }
