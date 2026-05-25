@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 
-const CLIENT_ID     = process.env.EXPO_PUBLIC_EBAY_CLIENT_ID;
-const CLIENT_SECRET = process.env.EXPO_PUBLIC_EBAY_CLIENT_SECRET;
+const CLIENT_ID     = process.env.EXPO_PUBLIC_EBAY_CLIENT_ID     || '';
+const CLIENT_SECRET = process.env.EXPO_PUBLIC_EBAY_CLIENT_SECRET || '';
 const IS_SANDBOX    = process.env.EXPO_PUBLIC_EBAY_SANDBOX === 'true';
 
 const SPORTS_CARDS_CATEGORY = '261328';
