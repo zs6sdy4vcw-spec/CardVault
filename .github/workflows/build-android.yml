@@ -48,19 +48,16 @@ jobs:
           echo "EXPO_PUBLIC_EBAY_CLIENT_SECRET=${{ secrets.EXPO_PUBLIC_EBAY_CLIENT_SECRET }}" >> .env
           echo "EXPO_PUBLIC_EBAY_SANDBOX=false" >> .env
 
-      - name: 🏗️ Prebuild Android
-        run: npx expo prebuild --platform android --clean
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
       - name: 🔑 Setup keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
-          ls -la android/app/release.keystore && wc -c android/app/release.keystore
+          ls -la android/app/release.keystore
 
       - name: 🏗️ Build Release APK
         if: ${{ github.event.inputs.build_type != 'development' }}
         run: |
+          export PATH="$(npm bin -g):$PATH"
+          export NODE_OPTIONS="--max-old-space-size=4096"
           cd android
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
@@ -83,6 +80,7 @@ jobs:
       - name: 🏗️ Build Development APK
         if: ${{ github.event.inputs.build_type == 'development' }}
         run: |
+          export PATH="$(npm bin -g):$PATH"
           cd android
           ./gradlew assembleDebug \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
