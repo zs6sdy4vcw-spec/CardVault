@@ -19,6 +19,11 @@
   return NO;
 }
 
+- (BOOL)isRemoteDebuggingAvailable
+{
+  return NO;
+}
+
 + (BOOL)requiresMainQueueSetup
 {
   return NO;
@@ -36,6 +41,8 @@
 - (void)onFastRefresh {}
 
 - (void)setHotLoadingEnabled:(BOOL)isHotLoadingEnabled {}
+
+- (void)setIsDebuggingRemotely:(BOOL)isDebuggingRemotelyEnabled {}
 
 - (void)setProfilingEnabled:(BOOL)isProfilingEnabled {}
 
