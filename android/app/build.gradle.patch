@@ -1,0 +1,5 @@
+    entryFile = file("/home/runner/work/CardVault/CardVault/index.js")
+    reactNativeDir = new File("/home/runner/work/CardVault/CardVault/node_modules/react-native")
+    hermesCommand = new File("/home/runner/work/CardVault/CardVault/node_modules/react-native").getAbsolutePath() + "/sdks/hermesc/%OS-BIN%/hermesc"
+    codegenDir = new File("/home/runner/work/CardVault/CardVault/node_modules/@react-native/codegen")
+    cliFile = new File("/home/runner/work/CardVault/CardVault/node_modules/@expo/cli/build/bin/cli")
