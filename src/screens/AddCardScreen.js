@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
   StyleSheet, Alert, Image, useWindowDimensions, ActivityIndicator, Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../context/ThemeContext';
 import { CONDITIONS } from '../constants/theme';
@@ -53,20 +54,35 @@ async function fetchCardImageFromEbay(player, set, cardNumber, sport) {
   })).filter(i => i.url);
 }
 
+const EMPTY_FORM = {
+  player: '', team: '', sport: 'NHL', year: '',
+  set: '', condition: 'Mint 9', valueCad: '',
+  quantity: '1', notes: '', cardNumber: '',
+};
+
 export default function AddCardScreen({ navigation, route }) {
   const { colors } = useTheme();
   const { width }  = useWindowDimensions();
   const { cards, setCards } = route?.params || { cards: [], setCards: () => {} };
 
-  const [form, setForm] = useState({
-    player: '', team: '', sport: 'NHL', year: '',
-    set: '', condition: 'Mint 9', valueCad: '',
-    quantity: '1', notes: '', cardNumber: '',
-  });
-  const [photo, setPhoto]                   = useState(null);
+  const [form, setForm]     = useState({ ...EMPTY_FORM });
+  const [photo, setPhoto]   = useState(null);
   const [condOpen, setCondOpen]             = useState(false);
   const [teamSuggestions, setTeamSuggestions] = useState([]);
   const [teamColors, setTeamColors]         = useState({ primary: null, secondary: null });
+  const [currency, setCurrency]             = useState('CAD'); // 'CAD' | 'USD'
+
+  // ── Reset formulaire à chaque fois qu'on revient sur cet écran ────────────
+  useFocusEffect(
+    useCallback(() => {
+      setForm({ ...EMPTY_FORM });
+      setPhoto(null);
+      setTeamSuggestions([]);
+      setTeamColors({ primary: null, secondary: null });
+      setCondOpen(false);
+      setCurrency('CAD');
+    }, [])
+  );
 
   // ── Photo eBay fetch ──────────────────────────────────────────────────────
   const [fetchingPhoto, setFetchingPhoto]   = useState(false);
@@ -135,9 +151,14 @@ export default function AddCardScreen({ navigation, route }) {
       Alert.alert('Champs manquants', 'Le joueur et la valeur sont requis.');
       return;
     }
+    const rawValue = parseFloat(form.valueCad);
+    // Convertit en CAD si USD saisi
+    const valueCad = currency === 'USD' ? rawValue / 0.74 : rawValue;
+
     const newCard = {
       ...form,
-      valueCad:      parseFloat(form.valueCad),
+      valueCad:      parseFloat(valueCad.toFixed(2)),
+      currency,      // garde la devise originale pour référence
       quantity:      parseInt(form.quantity) || 1,
       img:           photo,
       teamPrimary:   teamColors.primary,
@@ -322,10 +343,36 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           )}
 
+          {/* Devise */}
+          <Label text="Devise" />
+          <View style={styles.currencyRow}>
+            {['CAD', 'USD'].map(c => (
+              <TouchableOpacity
+                key={c}
+                style={[styles.currencyBtn, {
+                  backgroundColor: currency === c ? colors.accentBg : colors.surface,
+                  borderColor: currency === c ? colors.accent : colors.border,
+                }]}
+                onPress={() => setCurrency(c)}
+              >
+                <Text style={[styles.currencyTxt, { color: currency === c ? colors.accent : colors.textSub }]}>
+                  {c === 'CAD' ? '🇨🇦 CAD$' : '🇺🇸 USD$'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <View style={styles.row}>
             <View style={{ flex: 1 }}>
-              <Label text="Valeur (CAD$) *" />
+              <Label text={`Valeur (${currency}$) *`} />
               <TextInput style={inputStyle} placeholder="0.00" placeholderTextColor={colors.muted} value={form.valueCad} onChangeText={v => setField('valueCad', v)} keyboardType="decimal-pad" />
+              {form.valueCad && parseFloat(form.valueCad) > 0 && (
+                <Text style={{ color: colors.muted, fontSize: 11, marginTop: 4 }}>
+                  {currency === 'CAD'
+                    ? `≈ US$${(parseFloat(form.valueCad) * 0.74).toFixed(2)}`
+                    : `≈ CA$${(parseFloat(form.valueCad) / 0.74).toFixed(2)}`}
+                </Text>
+              )}
             </View>
             <View style={{ width: 12 }} />
             <View style={{ flex: 0.45 }}>
@@ -420,6 +467,9 @@ const styles = StyleSheet.create({
   dropHeaderTxt:      { fontSize: 11, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   dropItem:           { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: 1 },
   dropTxt:            { fontSize: 14, flex: 1 },
+  currencyRow:        { flexDirection: 'row', gap: 10, marginBottom: 4 },
+  currencyBtn:        { flex: 1, borderWidth: 1.5, borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
+  currencyTxt:        { fontWeight: '700', fontSize: 14 },
   addBtn:             { borderRadius: 12, paddingVertical: 15, alignItems: 'center' },
   addBtnTxt:          { color: '#0a0d14', fontWeight: '800', fontSize: 15 },
   // Modal

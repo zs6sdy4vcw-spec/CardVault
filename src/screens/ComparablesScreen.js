@@ -52,8 +52,8 @@ export default function ComparablesScreen({ navigation, route }) {
   }
 
   const urls = {
-    sold:   buildEbaySoldUrl(card.player, card.set, card.condition, card.year, card.cardNumber),
-    active: buildEbayActiveUrl(card.player, card.set, card.condition, card.year, card.cardNumber),
+    sold:   buildEbaySoldUrl(card.player, card.set, card.condition, card.year, card.cardNumber, card.currency),
+    active: buildEbayActiveUrl(card.player, card.set, card.condition, card.year, card.cardNumber, card.currency),
     point:  build130PointUrl(card.player, card.set, card.year, card.cardNumber),
   };
 

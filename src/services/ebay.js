@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 
-const CLIENT_ID     = process.env.EXPO_PUBLIC_EBAY_CLIENT_ID     || '';
-const CLIENT_SECRET = process.env.EXPO_PUBLIC_EBAY_CLIENT_SECRET || '';
+const CLIENT_ID     = process.env.EXPO_PUBLIC_EBAY_CLIENT_ID     || 'OlivierC-CardVaul-PRD-e18338082-d4fba871';
+const CLIENT_SECRET = process.env.EXPO_PUBLIC_EBAY_CLIENT_SECRET || 'PRD-18338082aef6-a550-4649-ae79-74c5';
 const IS_SANDBOX    = process.env.EXPO_PUBLIC_EBAY_SANDBOX === 'true';
 
 const SPORTS_CARDS_CATEGORY = '261328';
@@ -107,11 +107,12 @@ export function computeStats(listings, cadUsdRate = 0.74) {
   };
 }
 
-export function buildEbaySoldUrl(player, set, condition, year, cardNumber) {
-  const num = cardNumber ? `#${cardNumber}` : '';
-  const yr  = year || '';
-  const q   = encodeURIComponent(`${player} ${yr} ${set} ${num} ${condition}`.replace(/\s+/g, ' ').trim());
-  return `https://www.ebay.ca/sch/i.html?_nkw=${q}&_sacat=${SPORTS_CARDS_CATEGORY}&LH_Sold=1&LH_Complete=1&_sop=13`;
+export function buildEbaySoldUrl(player, set, condition, year, cardNumber, currency = 'CAD') {
+  const num  = cardNumber ? `#${cardNumber}` : '';
+  const yr   = year || '';
+  const q    = encodeURIComponent(`${player} ${yr} ${set} ${num} ${condition}`.replace(/\s+/g, ' ').trim());
+  const site = currency === 'USD' ? 'ebay.com' : 'ebay.ca';
+  return `https://www.${site}/sch/i.html?_nkw=${q}&_sacat=${SPORTS_CARDS_CATEGORY}&LH_Sold=1&LH_Complete=1&_sop=13`;
 }
 
 export function build130PointUrl(player, set, year, cardNumber) {
@@ -121,14 +122,16 @@ export function build130PointUrl(player, set, year, cardNumber) {
   return `https://www.130point.com/sales/?q=${q}`;
 }
 
-export function buildEbayActiveUrl(player, set, condition, year, cardNumber) {
-  const num = cardNumber ? `#${cardNumber}` : '';
-  const yr  = year || '';
-  const q   = encodeURIComponent(`${player} ${yr} ${set} ${num} ${condition}`.replace(/\s+/g, ' ').trim());
-  return `https://www.ebay.ca/sch/i.html?_nkw=${q}&_sacat=${SPORTS_CARDS_CATEGORY}&_sop=15`;
+export function buildEbayActiveUrl(player, set, condition, year, cardNumber, currency = 'CAD') {
+  const num  = cardNumber ? `#${cardNumber}` : '';
+  const yr   = year || '';
+  const q    = encodeURIComponent(`${player} ${yr} ${set} ${num} ${condition}`.replace(/\s+/g, ' ').trim());
+  const site = currency === 'USD' ? 'ebay.com' : 'ebay.ca';
+  return `https://www.${site}/sch/i.html?_nkw=${q}&_sacat=${SPORTS_CARDS_CATEGORY}&_sop=15`;
 }
 
-export function buildEbaySellUrl(player, set, year) {
-  const yr = year || '';
-  return `https://www.ebay.ca/sell/sellflow?query=${encodeURIComponent(`${player} ${yr} ${set}`.trim())}`;
+export function buildEbaySellUrl(player, set, year, currency = 'CAD') {
+  const yr   = year || '';
+  const site = currency === 'USD' ? 'ebay.com' : 'ebay.ca';
+  return `https://www.${site}/sell/sellflow?query=${encodeURIComponent(`${player} ${yr} ${set}`.trim())}`;
 }
