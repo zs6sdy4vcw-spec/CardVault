@@ -30,38 +30,14 @@ jobs:
       - name: 📥 Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: 🔧 Install Expo CLI
-        run: npm install -g @expo/cli
-
       - name: 🔑 Inject environment variables
         run: |
           echo "EXPO_PUBLIC_EBAY_CLIENT_ID=${{ secrets.EXPO_PUBLIC_EBAY_CLIENT_ID }}" >> .env
           echo "EXPO_PUBLIC_EBAY_CLIENT_SECRET=${{ secrets.EXPO_PUBLIC_EBAY_CLIENT_SECRET }}" >> .env
           echo "EXPO_PUBLIC_EBAY_SANDBOX=false" >> .env
 
-      - name: 🏗️ Prebuild Android
-        run: npx expo prebuild --platform android --clean
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: 🔍 Affiche build.gradle complet
-        run: cat android/app/build.gradle
-
-      - name: 🔧 Patch build.gradle ligne 33
-        run: |
-          NODE=$(which node)
-          echo "Node path: $NODE"
-          
-          # Affiche la ligne problématique
-          echo "=== Ligne 33 avant patch ==="
-          sed -n '33p' android/app/build.gradle
-          
-          # Remplace TOUS les "node" dans les execute() par le chemin absolu
-          sed -i "s|\"node\"|\"${NODE}\"|g" android/app/build.gradle
-          sed -i "s|'node'|'${NODE}'|g" android/app/build.gradle
-          
-          echo "=== Ligne 33 après patch ==="
-          sed -n '33p' android/app/build.gradle
+      - name: 🔍 Vérifie build.gradle
+        run: sed -n '30,38p' android/app/build.gradle
 
       - name: 🔑 Setup keystore
         run: |
