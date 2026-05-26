@@ -63,16 +63,16 @@ const EMPTY_FORM = {
 export default function AddCardScreen({ navigation, route }) {
   const { colors } = useTheme();
   const { width }  = useWindowDimensions();
-  const { cards, setCards } = route?.params || { cards: [], setCards: () => {} };
+  // Ne plus dépendre de cards passé en params — on recharge depuis storage
+  const { setCards } = route?.params || { setCards: () => {} };
 
   const [form, setForm]     = useState({ ...EMPTY_FORM });
   const [photo, setPhoto]   = useState(null);
   const [condOpen, setCondOpen]             = useState(false);
   const [teamSuggestions, setTeamSuggestions] = useState([]);
   const [teamColors, setTeamColors]         = useState({ primary: null, secondary: null });
-  const [currency, setCurrency]             = useState('CAD'); // 'CAD' | 'USD'
+  const [currency, setCurrency]             = useState('CAD');
 
-  // ── Reset formulaire à chaque fois qu'on revient sur cet écran ────────────
   useFocusEffect(
     useCallback(() => {
       setForm({ ...EMPTY_FORM });
@@ -152,19 +152,23 @@ export default function AddCardScreen({ navigation, route }) {
       return;
     }
     const rawValue = parseFloat(form.valueCad);
-    // Convertit en CAD si USD saisi
-    const valueCad = currency === 'USD' ? rawValue / 0.74 : rawValue;
+    const valueCad = currency === 'USD' ? parseFloat((rawValue / 0.74).toFixed(2)) : rawValue;
 
     const newCard = {
       ...form,
-      valueCad:      parseFloat(valueCad.toFixed(2)),
-      currency,      // garde la devise originale pour référence
+      valueCad,
+      currency,
       quantity:      parseInt(form.quantity) || 1,
       img:           photo,
       teamPrimary:   teamColors.primary,
       teamSecondary: teamColors.secondary,
     };
-    const updated = await addCard(cards, newCard);
+
+    // ⚠️ Recharge les cartes fraîches depuis AsyncStorage
+    // pour éviter d'écraser les cartes ajoutées précédemment
+    const { loadCards } = require('../services/storage');
+    const freshCards = await loadCards();
+    const updated = await addCard(freshCards, newCard);
     if (setCards) setCards(updated);
     navigation.goBack();
   };
