@@ -44,13 +44,22 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+      - name: 🔍 Debug — vérifie node et les chemins
+        run: |
+          echo "Node: $(which node) — $(node --version)"
+          echo "NPM: $(which npm)"
+          echo "NODE_PATH: $NODE_PATH"
+          node -e "console.log('expo path:', require.resolve('expo/package.json'))"
+          node -e "console.log('react-native path:', require.resolve('react-native/package.json'))"
+          cat android/app/build.gradle | sed -n '30,36p'
+
       - name: 🔑 Setup keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
-          ls -la android/app/release.keystore
 
       - name: 🏗️ Build Release APK
         run: |
+          export NODE_PATH="$(pwd)/node_modules"
           cd android
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
@@ -58,7 +67,8 @@ jobs:
             -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
-            -Dorg.gradle.daemon=false
+            -Dorg.gradle.daemon=false \
+            --stacktrace 2>&1 | tail -50
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
 
@@ -67,24 +77,4 @@ jobs:
         with:
           name: cardvault-release-apk
           path: android/app/build/outputs/apk/release/*.apk
-          retention-days: 7
-
-      - name: 🏗️ Build Release AAB
-        run: |
-          cd android
-          ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
-            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
-            -Dorg.gradle.daemon=false
-        env:
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
-
-      - name: 📤 Upload AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: cardvault-release-aab
-          path: android/app/build/outputs/bundle/release/*.aab
           retention-days: 7
