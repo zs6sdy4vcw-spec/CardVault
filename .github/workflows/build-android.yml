@@ -44,15 +44,63 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🔗 Symlink node pour Gradle
+      - name: 🔧 Patch build.gradle — résolution statique
         run: |
-          # Gradle exécute node via /usr/bin/node — on crée un symlink
-          sudo ln -sf $(which node) /usr/local/bin/node
-          sudo ln -sf $(which npm) /usr/local/bin/npm
-          echo "Symlinks créés:"
-          ls -la /usr/local/bin/node /usr/local/bin/npm
-          # Vérifie que Gradle peut trouver node
-          /usr/local/bin/node --version
+          NODE=$(which node)
+          PROJECT_ROOT=$(pwd)
+          ENTRY=$(node -e "require('expo/scripts/resolveAppEntry')" "$PROJECT_ROOT" android absolute 2>/dev/null || echo "index.js")
+          RN_DIR=$(node --print "require.resolve('react-native/package.json')" | xargs dirname)
+          CODEGEN_DIR=$(node --print "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })" | xargs dirname)
+          EXPO_CLI=$(node --print "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })")
+
+          echo "Entry: $ENTRY"
+          echo "RN dir: $RN_DIR"
+          echo "Codegen: $CODEGEN_DIR"
+          echo "Expo CLI: $EXPO_CLI"
+
+          # Patch build.gradle avec les vrais chemins
+          cat > /tmp/gradle_patch.py << 'PYEOF'
+          import re, sys
+
+          entry   = sys.argv[1]
+          rn_dir  = sys.argv[2]
+          codegen = sys.argv[3]
+          cli     = sys.argv[4]
+
+          with open('android/app/build.gradle', 'r') as f:
+              content = f.read()
+
+          # Remplace les blocs dynamiques par des chemins statiques
+          content = re.sub(
+              r'entryFile\s*=\s*file\(\[.*?\]\)',
+              f'entryFile = file("{entry}")',
+              content, flags=re.DOTALL
+          )
+          content = re.sub(
+              r'reactNativeDir\s*=\s*new File\(\[.*?package\.json.*?\]\)',
+              f'reactNativeDir = new File("{rn_dir}")',
+              content, flags=re.DOTALL
+          )
+          content = re.sub(
+              r'codegenDir\s*=\s*new File\(\[.*?codegen.*?\]\)',
+              f'codegenDir = new File("{codegen}")',
+              content, flags=re.DOTALL
+          )
+          content = re.sub(
+              r'cliFile\s*=\s*new File\(\[.*?\]\)',
+              f'cliFile = new File("{cli}")',
+              content, flags=re.DOTALL
+          )
+
+          with open('android/app/build.gradle', 'w') as f:
+              f.write(content)
+
+          print("build.gradle patché!")
+          PYEOF
+
+          python3 /tmp/gradle_patch.py "$ENTRY" "$RN_DIR" "$CODEGEN_DIR" "$EXPO_CLI"
+          echo "--- build.gradle lignes 30-40 après patch ---"
+          sed -n '30,42p' android/app/build.gradle
 
       - name: 🔑 Setup keystore
         run: |
@@ -70,7 +118,6 @@ jobs:
             -Dorg.gradle.daemon=false
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
-          PATH: "/usr/local/bin:/usr/bin:/bin:/opt/hostedtoolcache/node/20.20.2/x64/bin"
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
@@ -91,7 +138,6 @@ jobs:
             -Dorg.gradle.daemon=false
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
-          PATH: "/usr/local/bin:/usr/bin:/bin:/opt/hostedtoolcache/node/20.20.2/x64/bin"
 
       - name: 📤 Upload AAB
         uses: actions/upload-artifact@v4
