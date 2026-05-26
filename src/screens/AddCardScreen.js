@@ -24,8 +24,10 @@ async function fetchCardImageFromEbay(player, set, cardNumber, sport) {
   const token = await getEbayToken();
   const sportKeyword = { NHL: 'hockey card', NFL: 'football card', NBA: 'basketball card', MLB: 'baseball card' }[sport] || 'sports card';
   const numPart = cardNumber ? `#${cardNumber}` : '';
-  const q = encodeURIComponent(`${player} ${set} ${numPart} ${sportKeyword}`.replace(/\s+/g, ' ').trim());
-  const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${q}&category_ids=261328&limit=10&sort=price`;
+  // Nom du joueur entre guillemets pour résultats précis
+  const query = `"${player}" ${set} ${numPart} ${sportKeyword}`.replace(/\s+/g, ' ').trim();
+  const q = encodeURIComponent(query);
+  const url = `https://api.ebay.com/buy/browse/v1/item_summary/search?q=${q}&category_ids=261328&limit=20&sort=price`;
 
   const res = await fetch(url, {
     headers: {
@@ -36,14 +38,17 @@ async function fetchCardImageFromEbay(player, set, cardNumber, sport) {
 
   if (!res.ok) throw new Error(`eBay error: ${res.status}`);
   const data = await res.json();
-  const items = (data.itemSummaries || []).filter(i =>
-    i.image?.imageUrl || i.thumbnailImages?.[0]?.imageUrl
-  );
+
+  // Filtre — garde seulement les items qui contiennent le nom du joueur
+  const lastName = player.split(' ').pop().toLowerCase();
+  const items = (data.itemSummaries || [])
+    .filter(i => i.title?.toLowerCase().includes(lastName))
+    .filter(i => i.image?.imageUrl || i.thumbnailImages?.[0]?.imageUrl);
 
   return items.map(item => ({
-    url:   item.image?.imageUrl || item.thumbnailImages?.[0]?.imageUrl,
-    title: item.title,
-    price: item.price?.value,
+    url:      item.image?.imageUrl || item.thumbnailImages?.[0]?.imageUrl,
+    title:    item.title,
+    price:    item.price?.value,
     currency: item.price?.currency,
   })).filter(i => i.url);
 }
