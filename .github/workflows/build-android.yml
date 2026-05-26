@@ -44,14 +44,15 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🔍 Debug — vérifie node et les chemins
+      - name: 🔗 Symlink node pour Gradle
         run: |
-          echo "Node: $(which node) — $(node --version)"
-          echo "NPM: $(which npm)"
-          echo "NODE_PATH: $NODE_PATH"
-          node -e "console.log('expo path:', require.resolve('expo/package.json'))"
-          node -e "console.log('react-native path:', require.resolve('react-native/package.json'))"
-          cat android/app/build.gradle | sed -n '30,36p'
+          # Gradle exécute node via /usr/bin/node — on crée un symlink
+          sudo ln -sf $(which node) /usr/local/bin/node
+          sudo ln -sf $(which npm) /usr/local/bin/npm
+          echo "Symlinks créés:"
+          ls -la /usr/local/bin/node /usr/local/bin/npm
+          # Vérifie que Gradle peut trouver node
+          /usr/local/bin/node --version
 
       - name: 🔑 Setup keystore
         run: |
@@ -59,7 +60,6 @@ jobs:
 
       - name: 🏗️ Build Release APK
         run: |
-          export NODE_PATH="$(pwd)/node_modules"
           cd android
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
@@ -67,14 +67,35 @@ jobs:
             -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
             -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
-            -Dorg.gradle.daemon=false \
-            --stacktrace 2>&1 | tail -50
+            -Dorg.gradle.daemon=false
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
+          PATH: "/usr/local/bin:/usr/bin:/bin:/opt/hostedtoolcache/node/20.20.2/x64/bin"
 
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: cardvault-release-apk
           path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 7
+
+      - name: 🏗️ Build Release AAB
+        run: |
+          cd android
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }} \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
+            -Dorg.gradle.daemon=false
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false"
+          PATH: "/usr/local/bin:/usr/bin:/bin:/opt/hostedtoolcache/node/20.20.2/x64/bin"
+
+      - name: 📤 Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: cardvault-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
           retention-days: 7
