@@ -44,63 +44,85 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🔧 Patch build.gradle — résolution statique
+      - name: 🔍 Affiche build.gradle complet
+        run: cat android/app/build.gradle
+
+      - name: 🔧 Patch build.gradle ligne 33
         run: |
           NODE=$(which node)
-          PROJECT_ROOT=$(pwd)
-          ENTRY=$(node -e "require('expo/scripts/resolveAppEntry')" "$PROJECT_ROOT" android absolute 2>/dev/null || echo "index.js")
-          RN_DIR=$(node --print "require.resolve('react-native/package.json')" | xargs dirname)
-          CODEGEN_DIR=$(node --print "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })" | xargs dirname)
-          EXPO_CLI=$(node --print "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })")
+          echo "Node path: $NODE"
+          
+          # Affiche la ligne problématique
+          echo "=== Ligne 33 avant patch ==="
+          sed -n '33p' android/app/build.gradle
+          
+          # Remplace TOUS les "node" dans le
 
-          echo "Entry: $ENTRY"
-          echo "RN dir: $RN_DIR"
-          echo "Codegen: $CODEGEN_DIR"
-          echo "Expo CLI: $EXPO_CLI"
+cd /Users/oliviercloutie/CardVault && cat > .github/workflows/build-android.yml << 'WORKFLOW'
+name: Build Android APK
 
-          # Patch build.gradle avec les vrais chemins
-          cat > /tmp/gradle_patch.py << 'PYEOF'
-          import re, sys
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-          entry   = sys.argv[1]
-          rn_dir  = sys.argv[2]
-          codegen = sys.argv[3]
-          cli     = sys.argv[4]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-          with open('android/app/build.gradle', 'r') as f:
-              content = f.read()
+    steps:
+      - name: 🔄 Checkout code
+        uses: actions/checkout@v4
 
-          # Remplace les blocs dynamiques par des chemins statiques
-          content = re.sub(
-              r'entryFile\s*=\s*file\(\[.*?\]\)',
-              f'entryFile = file("{entry}")',
-              content, flags=re.DOTALL
-          )
-          content = re.sub(
-              r'reactNativeDir\s*=\s*new File\(\[.*?package\.json.*?\]\)',
-              f'reactNativeDir = new File("{rn_dir}")',
-              content, flags=re.DOTALL
-          )
-          content = re.sub(
-              r'codegenDir\s*=\s*new File\(\[.*?codegen.*?\]\)',
-              f'codegenDir = new File("{codegen}")',
-              content, flags=re.DOTALL
-          )
-          content = re.sub(
-              r'cliFile\s*=\s*new File\(\[.*?\]\)',
-              f'cliFile = new File("{cli}")',
-              content, flags=re.DOTALL
-          )
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-          with open('android/app/build.gradle', 'w') as f:
-              f.write(content)
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-          print("build.gradle patché!")
-          PYEOF
+      - name: 📥 Install dependencies
+        run: npm install --legacy-peer-deps
 
-          python3 /tmp/gradle_patch.py "$ENTRY" "$RN_DIR" "$CODEGEN_DIR" "$EXPO_CLI"
-          echo "--- build.gradle lignes 30-40 après patch ---"
-          sed -n '30,42p' android/app/build.gradle
+      - name: 🔧 Install Expo CLI
+        run: npm install -g @expo/cli
+
+      - name: 🔑 Inject environment variables
+        run: |
+          echo "EXPO_PUBLIC_EBAY_CLIENT_ID=${{ secrets.EXPO_PUBLIC_EBAY_CLIENT_ID }}" >> .env
+          echo "EXPO_PUBLIC_EBAY_CLIENT_SECRET=${{ secrets.EXPO_PUBLIC_EBAY_CLIENT_SECRET }}" >> .env
+          echo "EXPO_PUBLIC_EBAY_SANDBOX=false" >> .env
+
+      - name: 🏗️ Prebuild Android
+        run: npx expo prebuild --platform android --clean
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔍 Affiche build.gradle complet
+        run: cat android/app/build.gradle
+
+      - name: 🔧 Patch build.gradle ligne 33
+        run: |
+          NODE=$(which node)
+          echo "Node path: $NODE"
+          
+          # Affiche la ligne problématique
+          echo "=== Ligne 33 avant patch ==="
+          sed -n '33p' android/app/build.gradle
+          
+          # Remplace TOUS les "node" dans les execute() par le chemin absolu
+          sed -i "s|\"node\"|\"${NODE}\"|g" android/app/build.gradle
+          sed -i "s|'node'|'${NODE}'|g" android/app/build.gradle
+          
+          echo "=== Ligne 33 après patch ==="
+          sed -n '33p' android/app/build.gradle
 
       - name: 🔑 Setup keystore
         run: |
