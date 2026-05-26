@@ -15,8 +15,21 @@ export const COLORS = {
   nfl: '#e84b4b',
 };
 
-export const SPORT_COLORS = { NHL: COLORS.nhl, NFL: COLORS.nfl };
-export const SPORT_EMOJIS = { NHL: '🏒', NFL: '🏈' };
+export const SPORT_COLORS = {
+  NHL:   '#4b9fe8',
+  NFL:   '#e84b4b',
+  NBA:   '#e87c4b',
+  MLB:   '#4be87a',
+  OTHER: '#9b59b6',
+};
+
+export const SPORT_EMOJIS = {
+  NHL:   '🏒',
+  NFL:   '🏈',
+  NBA:   '🏀',
+  MLB:   '⚾',
+  OTHER: '🃏',
+};
 
 export const CONDITIONS = [
   // ── Non gradé ──────────────────────────────────────────────────────────────

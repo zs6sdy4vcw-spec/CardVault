@@ -1,76 +1,113 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme, Appearance } from 'react-native';
+import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ── Palettes ──────────────────────────────────────────────────────────────────
+// ── CardVault Design System ───────────────────────────────────────────────────
+// Inspiré du brief: premium gaming/sports cards, coffre-fort numérique
+// Palette: #070B17 fond sombre, #1E90FF bleu, #00C2FF glow, #6B4DFF violet
+
 export const DARK = {
-  bg:          '#0a0d14',
-  surface:     '#111827',
-  card:        '#1a2235',
-  border:      '#1e2d45',
-  accent:      '#00c8ff',  // cyan logo
-  accentDim:   '#0088bb',
-  accentBg:    '#00c8ff18',
-  navy:        '#0d1b4b',  // bleu nuit logo
-  text:        '#f0f4ff',
-  textSub:     '#8899bb',
-  muted:       '#4a5a7a',
-  green:       '#00e676',
-  red:         '#ff4d6d',
-  nhl:         '#00c8ff',
-  nfl:         '#ff4d6d',
-  tabBg:       '#0a0d14',
-  tabBorder:   '#1e2d45',
-  tabActive:   '#00c8ff',
-  tabInactive: '#4a5a7a',
-  statusBar:   'light-content',
+  // Fonds
+  bg:           '#070B17',   // fond principal ultra sombre
+  surface:      '#0D1426',   // surface cartes/panels
+  card:         '#111B33',   // cartes de collection
+  cardElevated: '#162040',   // cartes avec élévation
+  glass:        '#1A2547CC', // glassmorphism (avec alpha)
+
+  // Accents
+  accent:       '#1E90FF',   // bleu principal
+  accentGlow:   '#00C2FF',   // glow cyan
+  accentBg:     '#1E90FF18', // fond accent translucide
+  violet:       '#6B4DFF',   // violet secondaire
+  violetBg:     '#6B4DFF18',
+
+  // Borders & dividers
+  border:       '#1E2D4D',
+  borderGlow:   '#1E90FF33', // bordure avec glow
+
+  // Textes
+  text:         '#F0F4FF',
+  textSub:      '#8899BB',
+  muted:        '#3D5080',
+
+  // États
+  green:        '#00E676',
+  red:          '#FF4D6D',
+  orange:       '#FF9800',
+  gold:         '#FFD700',
+
+  // Sports
+  nhl:          '#00C2FF',
+  nfl:          '#FF4D6D',
+  nba:          '#FF6B35',
+  mlb:          '#00E676',
+
+  // Tab bar
+  tabBg:        '#070B17',
+  tabBorder:    '#1E2D4D',
+  tabActive:    '#1E90FF',
+  tabInactive:  '#3D5080',
+
+  // Navy pour hero
+  navy:         '#0D1B4B',
+
+  statusBar:    'light-content',
 };
 
 export const LIGHT = {
-  bg:          '#f0f4ff',
-  surface:     '#ffffff',
-  card:        '#ffffff',
-  border:      '#dde5f5',
-  accent:      '#0066cc',
-  accentDim:   '#0044aa',
-  accentBg:    '#0066cc18',
-  navy:        '#0d1b4b',
-  text:        '#0a0d14',
-  textSub:     '#4a5a7a',
-  muted:       '#8899bb',
-  green:       '#00a854',
-  red:         '#d32f2f',
-  nhl:         '#0066cc',
-  nfl:         '#d32f2f',
-  tabBg:       '#ffffff',
-  tabBorder:   '#dde5f5',
-  tabActive:   '#0066cc',
-  tabInactive: '#8899bb',
-  statusBar:   'dark-content',
+  bg:           '#F0F4FF',
+  surface:      '#FFFFFF',
+  card:         '#FFFFFF',
+  cardElevated: '#F8FAFF',
+  glass:        '#FFFFFFCC',
+
+  accent:       '#1E90FF',
+  accentGlow:   '#00C2FF',
+  accentBg:     '#1E90FF15',
+  violet:       '#6B4DFF',
+  violetBg:     '#6B4DFF12',
+
+  border:       '#DDE5F5',
+  borderGlow:   '#1E90FF33',
+
+  text:         '#070B17',
+  textSub:      '#4A5A7A',
+  muted:        '#8899BB',
+
+  green:        '#00A854',
+  red:          '#D32F2F',
+  orange:       '#E65100',
+  gold:         '#F9A825',
+
+  nhl:          '#1E90FF',
+  nfl:          '#D32F2F',
+  nba:          '#E65100',
+  mlb:          '#00A854',
+
+  tabBg:        '#FFFFFF',
+  tabBorder:    '#DDE5F5',
+  tabActive:    '#1E90FF',
+  tabInactive:  '#8899BB',
+
+  navy:         '#0D1B4B',
+
+  statusBar:    'dark-content',
 };
 
 const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
-  const deviceScheme = useColorScheme();
-  const [mode, setMode] = useState('system'); // 'system' | 'dark' | 'light'
+  const deviceScheme  = useColorScheme();
+  const [mode, setMode] = useState('system');
 
   useEffect(() => {
-    AsyncStorage.getItem('themeMode').then(saved => {
-      if (saved) setMode(saved);
-    });
+    AsyncStorage.getItem('themeMode').then(saved => { if (saved) setMode(saved); });
   }, []);
 
-  const setThemeMode = async (newMode) => {
-    setMode(newMode);
-    await AsyncStorage.setItem('themeMode', newMode);
-  };
+  const setThemeMode = async (m) => { setMode(m); await AsyncStorage.setItem('themeMode', m); };
 
-  const isDark = mode === 'system'
-    ? deviceScheme === 'dark'
-    : mode === 'dark';
-
-  const colors = isDark ? DARK : LIGHT;
+  const isDark  = mode === 'system' ? deviceScheme === 'dark' : mode === 'dark';
+  const colors  = isDark ? DARK : LIGHT;
 
   return (
     <ThemeContext.Provider value={{ colors, mode, setThemeMode, isDark }}>
@@ -79,11 +116,26 @@ export function ThemeProvider({ children }) {
   );
 }
 
-export function useTheme() {
-  return useContext(ThemeContext);
-}
+export function useTheme() { return useContext(ThemeContext); }
 
-// Helpers formatage
-export const formatCAD = (v) => `CA$${Number(v).toFixed(2)}`;
-export const formatUSD = (v) => `US$${Number(v).toFixed(2)}`;
+// ── Formatage ─────────────────────────────────────────────────────────────────
 export const CAD_USD_RATE = 0.74;
+export const formatCAD = (v) => `CA$${Number(v || 0).toFixed(2)}`;
+export const formatUSD = (v) => `US$${Number(v || 0).toFixed(2)}`;
+
+// ── Shadows / Glow helpers ────────────────────────────────────────────────────
+export const glowShadow = (color = '#1E90FF', radius = 12) => ({
+  shadowColor:   color,
+  shadowOffset:  { width: 0, height: 4 },
+  shadowOpacity: 0.4,
+  shadowRadius:  radius,
+  elevation:     10,
+});
+
+export const cardShadow = {
+  shadowColor:   '#000',
+  shadowOffset:  { width: 0, height: 2 },
+  shadowOpacity: 0.15,
+  shadowRadius:  8,
+  elevation:     4,
+};

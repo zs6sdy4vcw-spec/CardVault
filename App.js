@@ -4,10 +4,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View, Text, Image, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import {
+  View, Text, Image, StyleSheet, useWindowDimensions,
+  TouchableOpacity, Platform,
+} from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { ThemeProvider, useTheme, glowShadow } from './src/context/ThemeContext';
 import CollectionScreen  from './src/screens/CollectionScreen';
 import AddCardScreen     from './src/screens/AddCardScreen';
 import CardDetailScreen  from './src/screens/CardDetailScreen';
@@ -19,12 +22,20 @@ import MarketScreen      from './src/screens/MarketScreen';
 const Tab   = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const ICONS = {
-  collection: require('./assets/icons/collection.png'),
-  stats:      require('./assets/icons/stats.png'),
-  add:        require('./assets/icons/add.png'),
-  market:     require('./assets/icons/market.png'),
-  settings:   require('./assets/icons/settings.png'),
+// ── Icônes dark / light ───────────────────────────────────────────────────────
+const ICONS_DARK = {
+  collection: require('./assets/icons/collection_dark.png'),
+  stats:      require('./assets/icons/stats_dark.png'),
+  add:        require('./assets/icons/add_dark.png'),
+  market:     require('./assets/icons/market_dark.png'),
+  settings:   require('./assets/icons/settings_dark.png'),
+};
+const ICONS_LIGHT = {
+  collection: require('./assets/icons/collection_light.png'),
+  stats:      require('./assets/icons/stats_light.png'),
+  add:        require('./assets/icons/add_light.png'),
+  market:     require('./assets/icons/market_light.png'),
+  settings:   require('./assets/icons/settings_light.png'),
 };
 
 // ── Stacks ────────────────────────────────────────────────────────────────────
@@ -35,7 +46,6 @@ function CollectionStack() {
       <Stack.Screen name="CollectionHome" component={CollectionScreen} />
       <Stack.Screen name="CardDetail"     component={CardDetailScreen} />
       <Stack.Screen name="Comparables"    component={ComparablesScreen} />
-      <Stack.Screen name="AddCard"        component={AddCardScreen} />
     </Stack.Navigator>
   );
 }
@@ -59,107 +69,122 @@ function AddStack() {
   );
 }
 
-// ── Tab Icon ──────────────────────────────────────────────────────────────────
-function TabIcon({ iconKey, label, focused, colors, iconSize }) {
+// ── Custom Tab Bar ────────────────────────────────────────────────────────────
+function CustomTabBar({ state, descriptors, navigation }) {
+  const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const ICONS = isDark ? ICONS_DARK : ICONS_LIGHT;
+
+  const tabLabels = ['Collection', 'Stats', 'Ajouter', 'Marché', 'Réglages'];
+  const iconKeys  = ['collection', 'stats', 'add', 'market', 'settings'];
+  const iconSize  = width > 600 ? 36 : 28;
+
   return (
-    <View style={[styles.tabIcon, { width: Math.max(iconSize + 20, 60) }]}>
-      <Image
-        source={ICONS[iconKey]}
-        style={{ width: iconSize, height: iconSize, opacity: focused ? 1 : 0.45 }}
-        resizeMode="contain"
-      />
-      <Text
-        style={[styles.tabLabel, { color: focused ? colors.tabActive : colors.tabInactive, fontSize: iconSize > 30 ? 11 : 10 }]}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
-      {focused && <View style={[styles.dot, { backgroundColor: colors.accent }]} />}
+    <View style={[
+      styles.tabBarOuter,
+      { paddingBottom: insets.bottom || 8 },
+    ]}>
+      {/* Fond floating avec glassmorphism */}
+      <View style={[
+        styles.tabBarInner,
+        {
+          backgroundColor: isDark ? colors.surface : colors.card,
+          borderColor: isDark ? colors.borderGlow : colors.border,
+          ...glowShadow(colors.accent, 20),
+        },
+      ]}>
+        {state.routes.map((route, index) => {
+          const focused  = state.index === index;
+          const isCenter = index === 2; // bouton +
+
+          const onPress = () => {
+            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+            if (!focused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          if (isCenter) {
+            return (
+              <TouchableOpacity
+                key={route.key}
+                style={styles.tabCenterWrap}
+                onPress={onPress}
+                activeOpacity={0.85}
+              >
+                <View style={[
+                  styles.tabCenterBtn,
+                  {
+                    backgroundColor: colors.accent,
+                    ...glowShadow(colors.accentGlow, 16),
+                  },
+                ]}>
+                  <Image
+                    source={ICONS[iconKeys[index]]}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text style={[styles.tabLabel, { color: focused ? colors.accent : colors.tabInactive }]}>
+                  {tabLabels[index]}
+                </Text>
+              </TouchableOpacity>
+            );
+          }
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              style={styles.tabItem}
+              onPress={onPress}
+              activeOpacity={0.75}
+            >
+              {/* Glow indicator actif */}
+              {focused && (
+                <View style={[styles.tabActiveGlow, { backgroundColor: colors.accent + '22' }]} />
+              )}
+              <Image
+                source={ICONS[iconKeys[index]]}
+                style={[
+                  { width: iconSize, height: iconSize },
+                  !focused && { opacity: 0.45 },
+                ]}
+                resizeMode="contain"
+              />
+              <Text style={[
+                styles.tabLabel,
+                { color: focused ? colors.accent : colors.tabInactive },
+              ]}>
+                {tabLabels[index]}
+              </Text>
+              {focused && (
+                <View style={[styles.tabDot, { backgroundColor: colors.accent }]} />
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
-// ── Main navigator ────────────────────────────────────────────────────────────
+// ── Navigation ────────────────────────────────────────────────────────────────
 function AppNavigator() {
   const { colors, isDark } = useTheme();
-  const { width, height } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  const isLandscape = width > height;
-
-  // Taille icône adaptative — tablette paysage = plus petit
-  const iconSize = isLandscape
-    ? (width > 900 ? 28 : 24)
-    : (width > 600 ? 34 : width > 400 ? 28 : 24);
-
-  const tabHeight = iconSize + 36 + insets.bottom;
 
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={colors.bg} />
       <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarStyle: {
-            backgroundColor: colors.tabBg,
-            borderTopWidth: 1,
-            borderTopColor: colors.tabBorder,
-            height: tabHeight,
-            paddingBottom: insets.bottom + 4,
-            paddingTop: 6,
-            elevation: 16,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
-            shadowOpacity: 0.12,
-            shadowRadius: 8,
-          },
-        }}
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen
-          name="Accueil"
-          component={CollectionStack}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon iconKey="collection" label="Collection" focused={focused} colors={colors} iconSize={iconSize} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Stats"
-          component={StatsScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon iconKey="stats" label="Stats" focused={focused} colors={colors} iconSize={iconSize} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Ajouter"
-          component={AddStack}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon iconKey="add" label="Ajouter" focused={focused} colors={colors} iconSize={iconSize} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Marché"
-          component={MarketStack}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon iconKey="market" label="Marché" focused={focused} colors={colors} iconSize={iconSize} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Réglages"
-          component={SettingsScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon iconKey="settings" label="Réglages" focused={focused} colors={colors} iconSize={iconSize} />
-            ),
-          }}
-        />
+        <Tab.Screen name="Accueil"   component={CollectionStack} />
+        <Tab.Screen name="Stats"     component={StatsScreen} />
+        <Tab.Screen name="Ajouter"   component={AddStack} />
+        <Tab.Screen name="Marché"    component={MarketStack} />
+        <Tab.Screen name="Réglages"  component={SettingsScreen} />
       </Tab.Navigator>
     </>
   );
@@ -180,21 +205,62 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  tabIcon: {
+  // Tab bar floating
+  tabBarOuter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    backgroundColor: 'transparent',
+  },
+  tabBarInner: {
+    flexDirection: 'row',
+    borderRadius: 28,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+  },
+
+  // Tab items
+  tabItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 4,
-    gap: 3,
+    gap: 4,
+    paddingVertical: 4,
+    position: 'relative',
+  },
+  tabActiveGlow: {
+    position: 'absolute',
+    top: 0, left: 4, right: 4, bottom: 0,
+    borderRadius: 16,
   },
   tabLabel: {
+    fontSize: 10,
     fontWeight: '600',
     letterSpacing: 0.2,
-    textAlign: 'center',
   },
-  dot: {
+  tabDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    marginTop: 1,
+  },
+
+  // Bouton central +
+  tabCenterWrap: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 4,
+    marginTop: -20,
+  },
+  tabCenterBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
