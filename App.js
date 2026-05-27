@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemeProvider, useTheme, glowShadow } from './src/context/ThemeContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import t from './src/i18n/translations';
+
 import CollectionScreen  from './src/screens/CollectionScreen';
 import AddCardScreen     from './src/screens/AddCardScreen';
 import CardDetailScreen  from './src/screens/CardDetailScreen';
@@ -50,6 +52,15 @@ function CollectionStack() {
   );
 }
 
+function AddStack() {
+  const { colors } = useTheme();
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: colors.bg } }}>
+      <Stack.Screen name="AddCardMain" component={AddCardScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function MarketStack() {
   const { colors } = useTheme();
   return (
@@ -60,107 +71,71 @@ function MarketStack() {
   );
 }
 
-function AddStack() {
-  const { colors } = useTheme();
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false, cardStyle: { backgroundColor: colors.bg } }}>
-      <Stack.Screen name="AddCardMain" component={AddCardScreen} />
-    </Stack.Navigator>
-  );
-}
-
 // ── Custom Tab Bar ────────────────────────────────────────────────────────────
-function CustomTabBar({ state, descriptors, navigation }) {
+function CustomTabBar({ state, navigation }) {
   const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const ICONS = isDark ? ICONS_DARK : ICONS_LIGHT;
 
-  const tabLabels = ['Collection', 'Stats', 'Ajouter', 'Marché', 'Réglages'];
-  const iconKeys  = ['collection', 'stats', 'add', 'market', 'settings'];
-  const iconSize  = width > 600 ? 36 : 28;
+  const tabs = [
+    { key: 'collection', label: t.nav_collection, icon: 'collection' },
+    { key: 'stats',      label: t.nav_stats,      icon: 'stats' },
+    { key: 'add',        label: t.nav_add,         icon: 'add',      isCenter: true },
+    { key: 'market',     label: t.nav_market,      icon: 'market' },
+    { key: 'settings',   label: t.nav_settings,    icon: 'settings' },
+  ];
+
+  const iconSize = width > 600 ? 32 : 26;
 
   return (
-    <View style={[
-      styles.tabBarOuter,
-      { paddingBottom: insets.bottom || 8 },
-    ]}>
-      {/* Fond floating avec glassmorphism */}
+    <View style={[styles.tabBarOuter, { paddingBottom: insets.bottom || 8 }]}>
       <View style={[
         styles.tabBarInner,
         {
-          backgroundColor: isDark ? colors.surface : colors.card,
+          backgroundColor: isDark ? colors.surface : '#FFFFFF',
           borderColor: isDark ? colors.borderGlow : colors.border,
-          ...glowShadow(colors.accent, 20),
+          shadowColor: colors.accent,
         },
       ]}>
-        {state.routes.map((route, index) => {
-          const focused  = state.index === index;
-          const isCenter = index === 2; // bouton +
+        {tabs.map((tab, index) => {
+          const focused = state.index === index;
 
           const onPress = () => {
-            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
+            const event = navigation.emit({ type: 'tabPress', target: state.routes[index].key, canPreventDefault: true });
+            if (!focused && !event.defaultPrevented) navigation.navigate(state.routes[index].name);
           };
 
-          if (isCenter) {
+          if (tab.isCenter) {
             return (
-              <TouchableOpacity
-                key={route.key}
-                style={styles.tabCenterWrap}
-                onPress={onPress}
-                activeOpacity={0.85}
-              >
-                <View style={[
-                  styles.tabCenterBtn,
-                  {
-                    backgroundColor: colors.accent,
-                    ...glowShadow(colors.accentGlow, 16),
-                  },
-                ]}>
-                  <Image
-                    source={ICONS[iconKeys[index]]}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
+              <TouchableOpacity key={tab.key} style={styles.centerWrap} onPress={onPress} activeOpacity={0.85}>
+                <View style={[styles.centerBtn, {
+                  backgroundColor: isDark ? colors.accent : colors.accent,
+                  shadowColor: colors.accentGlow,
+                }]}>
+                  <Image source={ICONS[tab.icon]} style={styles.centerIcon} resizeMode="contain" />
                 </View>
                 <Text style={[styles.tabLabel, { color: focused ? colors.accent : colors.tabInactive }]}>
-                  {tabLabels[index]}
+                  {tab.label}
                 </Text>
               </TouchableOpacity>
             );
           }
 
           return (
-            <TouchableOpacity
-              key={route.key}
-              style={styles.tabItem}
-              onPress={onPress}
-              activeOpacity={0.75}
-            >
-              {/* Glow indicator actif */}
+            <TouchableOpacity key={tab.key} style={styles.tabItem} onPress={onPress} activeOpacity={0.75}>
               {focused && (
-                <View style={[styles.tabActiveGlow, { backgroundColor: colors.accent + '22' }]} />
+                <View style={[styles.tabGlow, { backgroundColor: colors.accent + '18' }]} />
               )}
               <Image
-                source={ICONS[iconKeys[index]]}
-                style={[
-                  { width: iconSize, height: iconSize },
-                  !focused && { opacity: 0.45 },
-                ]}
+                source={ICONS[tab.icon]}
+                style={[{ width: iconSize, height: iconSize }, !focused && { opacity: 0.45 }]}
                 resizeMode="contain"
               />
-              <Text style={[
-                styles.tabLabel,
-                { color: focused ? colors.accent : colors.tabInactive },
-              ]}>
-                {tabLabels[index]}
+              <Text style={[styles.tabLabel, { color: focused ? colors.accent : colors.tabInactive }]}>
+                {tab.label}
               </Text>
-              {focused && (
-                <View style={[styles.tabDot, { backgroundColor: colors.accent }]} />
-              )}
+              {focused && <View style={[styles.tabDot, { backgroundColor: colors.accent }]} />}
             </TouchableOpacity>
           );
         })}
@@ -169,10 +144,9 @@ function CustomTabBar({ state, descriptors, navigation }) {
   );
 }
 
-// ── Navigation ────────────────────────────────────────────────────────────────
+// ── Navigator ─────────────────────────────────────────────────────────────────
 function AppNavigator() {
   const { colors, isDark } = useTheme();
-
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} backgroundColor={colors.bg} />
@@ -180,11 +154,11 @@ function AppNavigator() {
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name="Accueil"   component={CollectionStack} />
-        <Tab.Screen name="Stats"     component={StatsScreen} />
-        <Tab.Screen name="Ajouter"   component={AddStack} />
-        <Tab.Screen name="Marché"    component={MarketStack} />
-        <Tab.Screen name="Réglages"  component={SettingsScreen} />
+        <Tab.Screen name="Accueil"  component={CollectionStack} />
+        <Tab.Screen name="Stats"    component={StatsScreen} />
+        <Tab.Screen name="Ajouter"  component={AddStack} />
+        <Tab.Screen name="Marché"   component={MarketStack} />
+        <Tab.Screen name="Réglages" component={SettingsScreen} />
       </Tab.Navigator>
     </>
   );
@@ -205,38 +179,37 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  // Tab bar floating
   tabBarOuter: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 0, left: 0, right: 0,
     paddingHorizontal: 12,
-    paddingTop: 8,
+    paddingTop: 6,
     backgroundColor: 'transparent',
   },
   tabBarInner: {
     flexDirection: 'row',
     borderRadius: 28,
     borderWidth: 1,
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 4,
     alignItems: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
   },
-
-  // Tab items
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
     paddingVertical: 4,
+    gap: 3,
     position: 'relative',
   },
-  tabActiveGlow: {
+  tabGlow: {
     position: 'absolute',
     top: 0, left: 4, right: 4, bottom: 0,
-    borderRadius: 16,
+    borderRadius: 14,
   },
   tabLabel: {
     fontSize: 10,
@@ -244,23 +217,26 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   tabDot: {
-    width: 4,
-    height: 4,
+    width: 4, height: 4,
     borderRadius: 2,
   },
-
-  // Bouton central +
-  tabCenterWrap: {
+  centerWrap: {
     flex: 1,
     alignItems: 'center',
-    gap: 4,
-    marginTop: -20,
+    gap: 3,
+    marginTop: -22,
   },
-  tabCenterBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  centerBtn: {
+    width: 58, height: 58,
+    borderRadius: 29,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 14,
+  },
+  centerIcon: {
+    width: 30, height: 30,
   },
 });
