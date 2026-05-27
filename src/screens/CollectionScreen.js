@@ -69,18 +69,21 @@ export default function CollectionScreen({ navigation }) {
   const surf = isDark ? colors.surface : '#FFFFFF';
 
   return (
-    <SafeAreaView style={[s.safe, {backgroundColor: bg}]} edges={['top','left','right']}>
+    <SafeAreaView style={[s.safe, { backgroundColor: isDark ? colors.navy : '#FFFFFF' }]} edges={['top','left','right']}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.navy : surf} />
 
       {/* ── Header ── */}
-      <View style={[s.header, { backgroundColor: isDark ? colors.navy : surf, borderBottomColor: colors.border }]}>
-        <TouchableOpacity><Text style={[s.menuIcon, {color: colors.text}]}>☰</Text></TouchableOpacity>
+      <View style={[s.header, {
+        backgroundColor: isDark ? colors.navy : '#FFFFFF',
+        borderBottomColor: isDark ? colors.border : '#F0F4FF',
+      }]}>
+        <TouchableOpacity><Text style={[s.menuIcon, {color: isDark ? '#FFFFFF' : colors.text}]}>☰</Text></TouchableOpacity>
         <Text style={s.logo}>
-          <Text style={{color: isDark ? '#FFFFFF' : colors.text}}>Card</Text>
+          <Text style={{color: isDark ? '#FFFFFF' : '#070B17'}}>Card</Text>
           <Text style={{color: colors.accent}}>Vault</Text>
         </Text>
         <TouchableOpacity onPress={() => setShowSearch(!showSearch)}>
-          <Text style={{fontSize:20, color: colors.text}}>🔍</Text>
+          <Text style={{fontSize:20, color: isDark ? '#FFFFFF' : colors.text}}>🔍</Text>
         </TouchableOpacity>
       </View>
 
@@ -99,23 +102,43 @@ export default function CollectionScreen({ navigation }) {
         </View>
       )}
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{paddingBottom: 100}}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 100}}
+        style={{ backgroundColor: isDark ? colors.navy : '#F5F7FC' }}
+      >
 
         {/* ── Hero Banner ── */}
-        <View style={s.heroWrap}>
+        <View style={[s.heroWrap, { backgroundColor: isDark ? colors.navy : '#FFFFFF' }]}>
           <Image
-            source={isDark ? require('../../assets/banner_dark.png') : require('../../assets/banner_light.png')}
+            source={isDark
+              ? require('../../assets/banner_dark.png')
+              : require('../../assets/banner_light.png')}
             style={s.heroBanner}
             resizeMode="cover"
           />
-          <View style={[s.heroOverlay, {backgroundColor: isDark ? 'rgba(7,11,23,0.35)' : 'rgba(13,27,75,0.25)'}]}>
-            <Text style={s.heroPre}>{t.hero_welcome}</Text>
-            <View style={{flexDirection:'row'}}>
-              <Text style={s.heroTitle}>Card</Text>
-              <Text style={[s.heroTitle, {color: '#00C2FF'}]}>Vault</Text>
+          {/* Texte overlay sombre uniquement */}
+          {isDark && (
+            <View style={[s.heroOverlay, { backgroundColor: 'rgba(7,11,23,0.25)' }]}>
+              <Text style={s.heroPre}>{t.hero_welcome}</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={s.heroTitle}>Card</Text>
+                <Text style={[s.heroTitle, { color: '#00C2FF' }]}>Vault</Text>
+              </View>
+              <Text style={s.heroSub}>{t.hero_subtitle}</Text>
             </View>
-            <Text style={s.heroSub}>{t.hero_subtitle}</Text>
-          </View>
+          )}
+          {/* Mode clair — texte sur fond blanc à gauche */}
+          {!isDark && (
+            <View style={[s.heroOverlay, { backgroundColor: 'transparent' }]}>
+              <Text style={[s.heroPre, { color: '#8899BB' }]}>{t.hero_welcome}</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={[s.heroTitle, { color: '#070B17' }]}>Card</Text>
+                <Text style={[s.heroTitle, { color: '#1E90FF' }]}>Vault</Text>
+              </View>
+              <Text style={[s.heroSub, { color: '#4A5A7A' }]}>{t.hero_subtitle}</Text>
+            </View>
+          )}
         </View>
 
         <View style={{paddingHorizontal: width * 0.04}}>
@@ -134,7 +157,7 @@ export default function CollectionScreen({ navigation }) {
               {icon:'collection', label:t.action_collection, sub:`${totalCards} ${t.action_cards}`, route:'Accueil'},
               {icon:'stats',      label:t.action_stats,      sub:t.action_total,  route:'Stats'},
               {icon:'add',        label:t.action_add,        sub:t.action_new,    route:'Ajouter', accent:true},
-              {icon:'market',     label:t.action_market,     sub:t.action_browse, route:'Marché'},
+              {icon:'market',     label:t.action_market,     sub:t.action_browse, route:t.market_title},
             ].map((a, i) => {
               const iconSrc = isDark
                 ? require('../../assets/icons/collection_dark.png') // placeholder, géré plus bas
@@ -171,16 +194,17 @@ export default function CollectionScreen({ navigation }) {
             <TouchableOpacity><Text style={[s.seeAll, {color: colors.accent}]}>{t.overview_see_all}</Text></TouchableOpacity>
           </View>
 
-          <View style={[s.overviewRow, {backgroundColor: surf, borderColor: colors.border}]}>
+          <View style={[s.overviewRow, {
+            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+            borderColor: isDark ? colors.border : '#E8EFFF',
+          }]}>
             {[
-              {emoji:'🃏', val: String(totalCards),              label: t.overview_cards, color:'#7C4DFF'},
-              {emoji:'📂', val: String(sports.length),           label: t.overview_cats,  color:'#00C2FF'},
-              {emoji:'💰', val: formatCAD(totalValue),           label: t.overview_value, color:'#00E676'},
+              {emoji:'🃏', val: String(totalCards),    label: t.overview_cards, color:'#7C4DFF'},
+              {emoji:'📂', val: String(sports.length), label: t.overview_cats,  color:'#00C2FF'},
+              {emoji:'💰', val: formatCAD(totalValue), label: t.overview_value, color:'#00E676'},
             ].map((item, i) => (
-              <View key={i} style={[s.overviewItem, i < 2 && {borderRightWidth:1, borderRightColor: colors.border}]}>
-                <View style={[s.overviewIcon, {backgroundColor: item.color+'22'}]}>
-                  <Text style={{fontSize:18}}>{item.emoji}</Text>
-                </View>
+              <View key={i} style={[s.overviewItem, i < 2 && {borderRightWidth:1, borderRightColor: isDark ? colors.border : '#E8EFFF'}]}>
+                <Text style={{fontSize:28, marginBottom:4}}>{item.emoji}</Text>
                 <Text style={[s.overviewVal, {color: colors.text}]}>{item.val}</Text>
                 <Text style={[s.overviewLabel, {color: colors.muted}]}>{item.label}</Text>
               </View>
