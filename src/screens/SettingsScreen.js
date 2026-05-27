@@ -65,7 +65,7 @@ export default function SettingsScreen() {
             <ThemeBtn label={t.settings_system}  selected={mode === 'system'} onPress={() => setThemeMode('system')} colors={colors} />
           </View>
           <Text style={[styles.themeNote, { color: colors.muted }]}>
-            {mode === 'system' ? {`${t.settings_theme_current} : ${isDark ? t.settings_theme_dark : t.settings_theme_light} (${t.settings_system_hint})`} : ''}
+            {mode === 'system' ? `${t.settings_theme_current} : ${isDark ? t.settings_theme_dark : t.settings_theme_light} (${t.settings_system_hint})` : ''}
           </Text>
         </View>
 
