@@ -1,3 +1,4 @@
+import t from '../i18n/translations';
 import React from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView,
@@ -59,24 +60,24 @@ export default function SettingsScreen() {
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>Thème de l'application</Text>
           <View style={styles.themeBtns}>
-            <ThemeBtn label="☀️ Clair"    selected={mode === 'light'}  onPress={() => setThemeMode('light')}  colors={colors} />
-            <ThemeBtn label="🌙 Sombre"   selected={mode === 'dark'}   onPress={() => setThemeMode('dark')}   colors={colors} />
-            <ThemeBtn label="📱 Système"  selected={mode === 'system'} onPress={() => setThemeMode('system')} colors={colors} />
+            <ThemeBtn label={t.settings_light}    selected={mode === 'light'}  onPress={() => setThemeMode('light')}  colors={colors} />
+            <ThemeBtn label={t.settings_dark}   selected={mode === 'dark'}   onPress={() => setThemeMode('dark')}   colors={colors} />
+            <ThemeBtn label={t.settings_system}  selected={mode === 'system'} onPress={() => setThemeMode('system')} colors={colors} />
           </View>
           <Text style={[styles.themeNote, { color: colors.muted }]}>
-            {mode === 'system' ? `Thème actuel : ${isDark ? 'Sombre' : 'Clair'} (selon ton téléphone)` : ''}
+            {mode === 'system' ? {`${t.settings_theme_current} : ${isDark ? t.settings_theme_dark : t.settings_theme_light} (${t.settings_system_hint})`} : ''}
           </Text>
         </View>
 
         {/* Collection */}
         <Text style={[styles.sectionTitle, { color: colors.textSub, marginTop: 24 }]}>COLLECTION</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow label="Devise principale" sub="Valeur affichée en CAD$" colors={colors}>
+          <SettingRow label=t.settings_currency sub=t.settings_currency_sub colors={colors}>
             <View style={[styles.badge, { backgroundColor: colors.accentBg, borderColor: colors.accent }]}>
               <Text style={[styles.badgeTxt, { color: colors.accent }]}>CAD / USD</Text>
             </View>
           </SettingRow>
-          <SettingRow label="Sports supportés" sub="NHL Hockey · NFL Football" colors={colors}>
+          <SettingRow label=t.settings_sports sub=t.settings_sports_sub colors={colors}>
             <Text style={{ fontSize: 18 }}>🏒🏈</Text>
           </SettingRow>
         </View>
@@ -84,15 +85,15 @@ export default function SettingsScreen() {
         {/* À propos */}
         <Text style={[styles.sectionTitle, { color: colors.textSub, marginTop: 24 }]}>À PROPOS</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow label="Version" colors={colors}>
+          <SettingRow label=t.settings_version colors={colors}>
             <Text style={[styles.rowValue, { color: colors.textSub }]}>1.0.0</Text>
           </SettingRow>
-          <SettingRow label="Données eBay" sub="Browse API · Production" colors={colors}>
+          <SettingRow label=t.settings_ebay sub=t.settings_ebay_sub colors={colors}>
             <View style={[styles.badge, { backgroundColor: colors.green + '22', borderColor: colors.green }]}>
               <Text style={[styles.badgeTxt, { color: colors.green }]}>Actif</Text>
             </View>
           </SettingRow>
-          <SettingRow label="Stockage" sub="Local · AsyncStorage" colors={colors}>
+          <SettingRow label=t.settings_storage sub=t.settings_storage_sub colors={colors}>
             <Text style={[styles.rowValue, { color: colors.textSub }]}>Sur l'appareil</Text>
           </SettingRow>
         </View>

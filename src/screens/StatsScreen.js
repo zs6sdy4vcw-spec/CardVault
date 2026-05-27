@@ -1,3 +1,4 @@
+import t from '../i18n/translations';
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
@@ -7,7 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useTheme, formatCAD, formatUSD, CAD_USD_RATE } from '../context/ThemeContext';
 import { loadCards, loadSales, deleteSale, groupSalesByPeriod } from '../services/storage';
 
-const TABS = ['📊 Collection', '💰 Ventes'];
+const TABS = [t.stats_collection, t.stats_sales];
 
 function StatRow({ label, value, accent, colors }) {
   return (
@@ -129,10 +130,10 @@ export default function StatsScreen() {
                   <Text style={[styles.heroSub, { color: colors.textSub }]}>≈ {formatUSD(totalValueCad * CAD_USD_RATE)}</Text>
                 </View>
 
-                <Section title="Résumé" colors={colors}>
-                  <StatRow label="Nombre de cartes"       value={String(totalCards)}                                                    colors={colors} />
-                  <StatRow label="Entrées uniques"         value={String(cards.length)}                                                  colors={colors} />
-                  <StatRow label="Valeur moyenne"          value={formatCAD(avgValue)}                                                   colors={colors} accent />
+                <Section title=t.stats_summary colors={colors}>
+                  <StatRow label=t.stats_count       value={String(totalCards)}                                                    colors={colors} />
+                  <StatRow label=t.stats_unique         value={String(cards.length)}                                                  colors={colors} />
+                  <StatRow label=t.stats_avg          value={formatCAD(avgValue)}                                                   colors={colors} accent />
                   {mostValuable  && <StatRow label="Carte la plus valuable"  value={`${mostValuable.player} — ${formatCAD(mostValuable.valueCad)}`}   colors={colors} />}
                   {leastValuable && <StatRow label="Carte la moins valuable" value={`${leastValuable.player} — ${formatCAD(leastValuable.valueCad)}`} colors={colors} />}
                   {topYear       && <StatRow label="Année la plus représentée" value={`${topYear[0]} (${topYear[1]} cartes)`}            colors={colors} />}
@@ -206,9 +207,9 @@ export default function StatsScreen() {
                 {/* Stats périodes */}
                 <View style={styles.periodRow}>
                   {[
-                    { label: "Aujourd'hui", value: formatCAD(todaySales) },
-                    { label: 'Ce mois', value: formatCAD(monthSales) },
-                    { label: 'Cette année', value: formatCAD(yearSales) },
+                    { label: t.stats_today, value: formatCAD(todaySales) },
+                    { label: t.stats_month, value: formatCAD(monthSales) },
+                    { label: t.stats_year, value: formatCAD(yearSales) },
                   ].map((p, i) => (
                     <View key={i} style={[styles.periodBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
                       <Text style={[styles.periodLabel, { color: colors.textSub }]}>{p.label}</Text>
@@ -217,7 +218,7 @@ export default function StatsScreen() {
                   ))}
                 </View>
 
-                <Section title="Résumé" colors={colors}>
+                <Section title=t.stats_summary colors={colors}>
                   <StatRow label="Nombre de ventes"    value={String(sales.length)}         colors={colors} />
                   <StatRow label="Prix moyen de vente" value={formatCAD(avgSalePrice)}       colors={colors} accent />
                   <StatRow label="Profit net total"    value={`${totalProfit >= 0 ? '+' : ''}${formatCAD(totalProfit)}`} colors={colors} />
@@ -263,8 +264,8 @@ export default function StatsScreen() {
                         </View>
                         <TouchableOpacity
                           onPress={() => Alert.alert('Supprimer cette vente?', '', [
-                            { text: 'Annuler', style: 'cancel' },
-                            { text: 'Supprimer', style: 'destructive', onPress: async () => {
+                            { text: t.cancel, style: 'cancel' },
+                            { text: t.delete, style: 'destructive', onPress: async () => {
                               const updated = await deleteSale(sale.id);
                               setSales(updated);
                             }},

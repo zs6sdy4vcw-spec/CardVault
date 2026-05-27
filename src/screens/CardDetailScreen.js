@@ -1,3 +1,4 @@
+import t from '../i18n/translations';
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Image,
@@ -38,10 +39,10 @@ export default function CardDetailScreen({ navigation, route }) {
 
   // ── Supprimer ────────────────────────────────────────────────────────────────
   const handleDelete = () => {
-    Alert.alert('Supprimer', `Supprimer ${card.player}?`, [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t.delete, `Supprimer ${card.player}?`, [
+      { text: t.cancel, style: 'cancel' },
       {
-        text: 'Supprimer', style: 'destructive',
+        text: t.delete, style: 'destructive',
         onPress: async () => {
           const updated = await deleteCard(cards, card.id);
           if (setCards) setCards(updated);
@@ -54,7 +55,7 @@ export default function CardDetailScreen({ navigation, route }) {
   // ── Sauvegarder l'édition ─────────────────────────────────────────────────
   const handleSave = async () => {
     if (!form.player.trim() || !form.valueCad) {
-      Alert.alert('Champs manquants', 'Le joueur et la valeur sont requis.');
+      Alert.alert(t.add_required, 'Le joueur et la valeur sont requis.');
       return;
     }
     const updated = {
@@ -151,10 +152,10 @@ export default function CardDetailScreen({ navigation, route }) {
         {/* Info grid */}
         <View style={[styles.grid, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Row label="Set" value={card.set || '—'} />
-          {card.cardNumber ? <Row label="# Carte" value={`#${card.cardNumber}`} /> : null}
-          <Row label="Condition" value={card.condition} />
+          {card.cardNumber ? <Row label=t.add_number value={`#${card.cardNumber}`} /> : null}
+          <Row label=t.add_condition value={card.condition} />
           <Row label="Quantité" value={String(card.quantity)} />
-          <Row label="Année" value={card.year || '—'} />
+          <Row label=t.add_year value={card.year || '—'} />
         </View>
 
         {/* Valorisation */}
@@ -235,7 +236,7 @@ export default function CardDetailScreen({ navigation, route }) {
             </View>
 
             {/* Sport */}
-            <Label text="Sport" />
+            <Label text=t.add_sport />
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.sportRow}>
                 {SPORTS.map(s => (
@@ -250,19 +251,19 @@ export default function CardDetailScreen({ navigation, route }) {
               </View>
             </ScrollView>
 
-            <Label text="Joueur *" />
+            <Label text=t.add_player />
             <TextInput style={inputStyle} value={form.player} onChangeText={v => setField('player', v)} placeholderTextColor={colors.muted} />
 
-            <Label text="Équipe" />
+            <Label text=t.add_team />
             <TextInput style={inputStyle} value={form.team} onChangeText={v => setField('team', v)} placeholderTextColor={colors.muted} />
 
-            <Label text="Année" />
+            <Label text=t.add_year />
             <TextInput style={inputStyle} value={form.year} onChangeText={v => setField('year', v)} placeholderTextColor={colors.muted} />
 
-            <Label text="Set / Collection" />
+            <Label text=t.add_set />
             <TextInput style={inputStyle} value={form.set} onChangeText={v => setField('set', v)} placeholderTextColor={colors.muted} />
 
-            <Label text="Condition" />
+            <Label text=t.add_condition />
             <TouchableOpacity style={[inputStyle, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]} onPress={() => setCondOpen(!condOpen)}>
               <Text style={{ color: colors.text, fontSize: 14 }}>{form.condition}</Text>
               <Text style={{ color: colors.muted }}>{condOpen ? '▲' : '▼'}</Text>
@@ -289,10 +290,10 @@ export default function CardDetailScreen({ navigation, route }) {
               </View>
             </View>
 
-            <Label text="# Carte" />
+            <Label text=t.add_number />
             <TextInput style={inputStyle} value={form.cardNumber} onChangeText={v => setField('cardNumber', v)} placeholder="Ex: 201" placeholderTextColor={colors.muted} />
 
-            <Label text="Notes" />
+            <Label text=t.add_notes />
             <TextInput style={[inputStyle, { height: 76, textAlignVertical: 'top' }]} value={form.notes} onChangeText={v => setField('notes', v)} multiline placeholderTextColor={colors.muted} />
 
             <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: colors.accent, marginTop: 20 }]} onPress={handleSave}>

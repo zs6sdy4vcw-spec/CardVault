@@ -1,3 +1,4 @@
+import t from '../i18n/translations';
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
@@ -101,7 +102,7 @@ export default function MarketScreen({ navigation }) {
         <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 24, marginBottom: 12 }]}>⚡ Liens rapides</Text>
 
         <DeepLinkBtn
-          emoji="💰" label="eBay — Ventes complétées" sublabel="Cartes sportives · 90 derniers jours"
+          emoji="💰" label={t.market_ebay} sublabel={t.market_sold_sub}
           url="https://www.ebay.ca/sch/i.html?_sacat=261328&LH_Sold=1&LH_Complete=1&_sop=13"
           colors={colors} accent
         />
@@ -111,12 +112,12 @@ export default function MarketScreen({ navigation }) {
           colors={colors} accent
         />
         <DeepLinkBtn
-          emoji="🏒" label="eBay Hockey Cards" sublabel="NHL · Annonces actives"
+          emoji="🏒" label={t.market_nhl} sublabel={t.market_nhl_sub}
           url="https://www.ebay.ca/sch/i.html?_nkw=hockey+card&_sacat=261328&_sop=15"
           colors={colors}
         />
         <DeepLinkBtn
-          emoji="🏈" label="eBay Football Cards" sublabel="NFL · Annonces actives"
+          emoji="🏈" label={t.market_nfl} sublabel={t.market_nfl_sub}
           url="https://www.ebay.ca/sch/i.html?_nkw=football+card&_sacat=261328&_sop=15"
           colors={colors}
         />

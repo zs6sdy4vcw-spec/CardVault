@@ -1,3 +1,4 @@
+import t from '../i18n/translations';
 import React, { useState, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
@@ -8,9 +9,9 @@ import { useTheme, formatCAD, formatUSD, CAD_USD_RATE } from '../context/ThemeCo
 import { buildEbaySoldUrl, build130PointUrl, buildEbayActiveUrl, buildEbaySellUrl } from '../services/ebay';
 
 const TABS = [
-  { key: 'sold',   label: '💰 eBay Sold',  sub: 'Ventes complétées' },
-  { key: 'active', label: '🛒 eBay Actif',  sub: 'Annonces en cours' },
-  { key: 'point',  label: '🎯 130point',    sub: 'Last Sold' },
+  { key: 'sold',   label: t.comp_sold, sub: t.comp_sold_sub },
+  { key: 'active', label: t.comp_active, sub: t.comp_active_sub },
+  { key: 'point',  label: t.comp_130, sub: 'Last Sold' },
 ];
 
 // JS injecté pour cacher le header/footer eBay et améliorer l'affichage mobile
@@ -146,7 +147,7 @@ export default function ComparablesScreen({ navigation, route }) {
           <View style={[styles.loadingOverlay, { backgroundColor: colors.bg }]}>
             <ActivityIndicator color={colors.accent} size="large" />
             <Text style={[styles.loadingTxt, { color: colors.textSub }]}>
-              {activeTab === 'point' ? 'Chargement 130point…' : 'Chargement eBay…'}
+              {activeTab === 'point' ? t.comp_loading_130 : t.comp_loading_ebay}
             </Text>
             <Text style={[styles.loadingHint, { color: colors.muted }]}>
               Recherche : {card.player} {card.year || ''} {card.set}

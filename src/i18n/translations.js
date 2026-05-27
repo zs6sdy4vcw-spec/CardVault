@@ -244,6 +244,35 @@ const translations = {
     other:             'Other',
     error:             'Error',
     ok:                'OK',
+    // Comparables
+    comp_sold:         '💰 eBay Sold',
+    comp_sold_sub:     'Completed sales',
+    comp_active:       '🛒 eBay Active',
+    comp_active_sub:   'Active listings',
+    comp_130:          '🎯 130point',
+    comp_loading_ebay: 'Loading eBay…',
+    comp_loading_130:  'Loading 130point…',
+
+    // Market
+    market_sold_sub:   'Sports cards · Last 90 days',
+    market_nhl:        '🏒 eBay Hockey Cards',
+    market_nhl_sub:    'NHL · Active listings',
+    market_nfl:        '🏈 eBay Football Cards',
+    market_nfl_sub:    'NFL · Active listings',
+
+    // Settings
+    settings_theme_current: 'Current theme',
+    settings_system_hint:   'based on your phone',
+    settings_currency_sub:  'Value shown in CAD$',
+    settings_sports:        'Supported sports',
+    settings_sports_sub:    'NHL Hockey · NFL Football',
+    settings_ebay:          'eBay Data',
+    settings_ebay_sub:      'Browse API · Production',
+    settings_storage:       'Storage',
+    settings_storage_sub:   'Local · AsyncStorage',
+    settings_light:         '☀️ Light',
+    settings_dark:          '🌙 Dark',
+    settings_system:        '📱 System',
   },
 };
 

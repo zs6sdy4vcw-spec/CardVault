@@ -1,3 +1,4 @@
+import t from '../i18n/translations';
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
@@ -119,7 +120,7 @@ export default function AddCardScreen({ navigation, route }) {
         setPhotoModalVisible(true);
       }
     } catch (e) {
-      Alert.alert('Erreur', `Impossible de chercher la photo : ${e.message}`);
+      Alert.alert(t.error, `Impossible de chercher la photo : ${e.message}`);
     }
     setFetchingPhoto(false);
   };
@@ -148,7 +149,7 @@ export default function AddCardScreen({ navigation, route }) {
   // ── Ajouter carte ─────────────────────────────────────────────────────────
   const handleAdd = async () => {
     if (!form.player.trim() || !form.valueCad) {
-      Alert.alert('Champs manquants', 'Le joueur et la valeur sont requis.');
+      Alert.alert(t.add_required, 'Le joueur et la valeur sont requis.');
       return;
     }
     const rawValue = parseFloat(form.valueCad);
@@ -264,7 +265,7 @@ export default function AddCardScreen({ navigation, route }) {
         {/* ── Formulaire ───────────────────────────────────────────────── */}
         <View style={[styles.form, { backgroundColor: colors.card, borderColor: colors.border }]}>
 
-          <Label text="Sport" />
+          <Label text=t.add_sport />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.sportRow}>
               {SPORTS.map(s => (
@@ -284,10 +285,10 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           </ScrollView>
 
-          <Label text="Joueur *" />
+          <Label text=t.add_player />
           <TextInput style={inputStyle} placeholder="Connor McDavid" placeholderTextColor={colors.muted} value={form.player} onChangeText={v => setField('player', v)} />
 
-          <Label text="Équipe" />
+          <Label text=t.add_team />
           <TextInput style={inputStyle} placeholder="Edmonton Oilers" placeholderTextColor={colors.muted} value={form.team} onChangeText={handleTeamChange} />
           {teamSuggestions.length > 0 && (
             <View style={[styles.suggestions, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -309,16 +310,16 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           )}
 
-          <Label text="Année" />
+          <Label text=t.add_year />
           <TextInput style={inputStyle} placeholder="2015-16" placeholderTextColor={colors.muted} value={form.year} onChangeText={v => setField('year', v)} />
 
-          <Label text="Set / Collection" />
+          <Label text=t.add_set />
           <TextInput style={inputStyle} placeholder="Upper Deck Young Guns" placeholderTextColor={colors.muted} value={form.set} onChangeText={v => setField('set', v)} />
 
-          <Label text="# Carte" />
+          <Label text=t.add_number />
           <TextInput style={inputStyle} placeholder="Ex: 201, RC-15…" placeholderTextColor={colors.muted} value={form.cardNumber} onChangeText={v => setField('cardNumber', v)} />
 
-          <Label text="Condition" />
+          <Label text=t.add_condition />
           <TouchableOpacity style={[inputStyle, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]} onPress={() => setCondOpen(!condOpen)}>
             <Text style={{ color: colors.text, fontSize: 14 }}>{form.condition}</Text>
             <Text style={{ color: colors.muted }}>{condOpen ? '▲' : '▼'}</Text>
@@ -348,7 +349,7 @@ export default function AddCardScreen({ navigation, route }) {
           )}
 
           {/* Devise */}
-          <Label text="Devise" />
+          <Label text=t.add_currency />
           <View style={styles.currencyRow}>
             {['CAD', 'USD'].map(c => (
               <TouchableOpacity
@@ -385,7 +386,7 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           </View>
 
-          <Label text="Notes" />
+          <Label text=t.add_notes />
           <TextInput style={[inputStyle, { height: 76, textAlignVertical: 'top' }]} placeholder="RC, autographe, numérotée…" placeholderTextColor={colors.muted} value={form.notes} onChangeText={v => setField('notes', v)} multiline />
 
           <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.accent, marginTop: 20 }]} onPress={handleAdd}>
