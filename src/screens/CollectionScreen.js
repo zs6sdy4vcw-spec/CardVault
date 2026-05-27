@@ -69,8 +69,8 @@ export default function CollectionScreen({ navigation }) {
   const surf = isDark ? colors.surface : '#FFFFFF';
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: isDark ? colors.navy : '#FFFFFF' }]} edges={['top','left','right']}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.navy : surf} />
+    <SafeAreaView style={[s.safe, { backgroundColor: isDark ? '#070B17' : '#FFFFFF' }]} edges={['top','left','right']}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#070B17' : '#FFFFFF'} />
 
       {/* ── Header ── */}
       <View style={[s.header, {
@@ -105,11 +105,11 @@ export default function CollectionScreen({ navigation }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 100}}
-        style={{ backgroundColor: isDark ? colors.navy : '#F5F7FC' }}
+        style={{ backgroundColor: isDark ? '#070B17' : '#FFFFFF' }}
       >
 
         {/* ── Hero Banner ── */}
-        <View style={[s.heroWrap, { backgroundColor: isDark ? colors.navy : '#FFFFFF' }]}>
+        <View style={[s.heroWrap, { backgroundColor: isDark ? '#070B17' : '#FFFFFF' }]}>
           <Image
             source={isDark
               ? require('../../assets/banner_dark.png')
@@ -145,13 +145,9 @@ export default function CollectionScreen({ navigation }) {
 
           {/* ── Action Grid ── */}
           <View style={[s.actionGrid, {
-            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-            borderColor: isDark ? colors.border : '#E8EFFF',
-            shadowColor: colors.accent,
-            shadowOffset: {width:0, height:4},
-            shadowOpacity: isDark ? 0.2 : 0.08,
-            shadowRadius: 12,
-            elevation: 4,
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+            borderWidth: 0,
           }]}>
             {[
               {icon:'collection', label:t.action_collection, sub:`${totalCards} ${t.action_cards}`, route:'Accueil'},
@@ -175,7 +171,12 @@ export default function CollectionScreen({ navigation }) {
                     borderColor: a.accent ? colors.accent : (isDark ? colors.border : '#E8EFFF'),
                     backgroundColor: a.accent
                       ? colors.accent+'18'
-                      : (isDark ? colors.card : '#F8FAFF'),
+                      : (isDark ? colors.card : '#FFFFFF'),
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: isDark ? 0.3 : 0.08,
+                    shadowRadius: 8,
+                    elevation: 3,
                   }]}
                   onPress={() => navigation.navigate(a.route)}
                   activeOpacity={0.75}
@@ -378,13 +379,13 @@ const s = StyleSheet.create({
   searchInput:  {flex:1, fontSize:14},
   heroWrap:     {height:200, position:'relative', overflow:'hidden'},
   heroBanner:   {width:'100%', height:'100%'},
-  heroOverlay:  {position:'absolute', top:0, left:0, right:0, bottom:0, justifyContent:'center', paddingHorizontal:24, paddingVertical:20},
+  heroOverlay:  {position:'absolute', top:0, left:0, right:0, bottom:0, justifyContent:'center', paddingLeft:32, paddingRight:160, paddingVertical:20},
   heroPre:      {color:'#AAC4E8', fontSize:13, marginBottom:4},
   heroTitle:    {fontSize:32, fontWeight:'900', color:'#FFFFFF'},
   heroSub:      {color:'#AAC4E8', fontSize:12, marginTop:6, lineHeight:18},
   actionGrid:   {flexDirection:'row', flexWrap:'wrap', gap:10, padding:12, borderRadius:20, borderWidth:1, marginTop:16, marginBottom:16},
   actionBtn:    {width:'47%', borderWidth:1.5, borderRadius:16, padding:14, alignItems:'center', gap:6},
-  actionIcon:   {width:64, height:64},
+  actionIcon:   {width:80, height:80},
   actionLabel:  {fontSize:12, fontWeight:'700', textAlign:'center'},
   actionSub:    {fontSize:10, textAlign:'center'},
   sectionHeader:{flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10, marginTop:8},
