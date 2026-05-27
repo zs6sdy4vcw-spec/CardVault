@@ -72,12 +72,12 @@ export default function SettingsScreen() {
         {/* Collection */}
         <Text style={[styles.sectionTitle, { color: colors.textSub, marginTop: 24 }]}>COLLECTION</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow label=t.settings_currency sub=t.settings_currency_sub colors={colors}>
+          <SettingRow label={t.settings_currency} sub={t.settings_currency_sub} colors={colors}>
             <View style={[styles.badge, { backgroundColor: colors.accentBg, borderColor: colors.accent }]}>
               <Text style={[styles.badgeTxt, { color: colors.accent }]}>CAD / USD</Text>
             </View>
           </SettingRow>
-          <SettingRow label=t.settings_sports sub=t.settings_sports_sub colors={colors}>
+          <SettingRow label={t.settings_sports} sub={t.settings_sports_sub} colors={colors}>
             <Text style={{ fontSize: 18 }}>🏒🏈</Text>
           </SettingRow>
         </View>
@@ -85,15 +85,15 @@ export default function SettingsScreen() {
         {/* À propos */}
         <Text style={[styles.sectionTitle, { color: colors.textSub, marginTop: 24 }]}>À PROPOS</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow label=t.settings_version colors={colors}>
+          <SettingRow label={t.settings_version} colors={colors}>
             <Text style={[styles.rowValue, { color: colors.textSub }]}>1.0.0</Text>
           </SettingRow>
-          <SettingRow label=t.settings_ebay sub=t.settings_ebay_sub colors={colors}>
+          <SettingRow label={t.settings_ebay} sub={t.settings_ebay_sub} colors={colors}>
             <View style={[styles.badge, { backgroundColor: colors.green + '22', borderColor: colors.green }]}>
               <Text style={[styles.badgeTxt, { color: colors.green }]}>Actif</Text>
             </View>
           </SettingRow>
-          <SettingRow label=t.settings_storage sub=t.settings_storage_sub colors={colors}>
+          <SettingRow label={t.settings_storage} sub={t.settings_storage_sub} colors={colors}>
             <Text style={[styles.rowValue, { color: colors.textSub }]}>Sur l'appareil</Text>
           </SettingRow>
         </View>

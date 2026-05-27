@@ -130,10 +130,10 @@ export default function StatsScreen() {
                   <Text style={[styles.heroSub, { color: colors.textSub }]}>≈ {formatUSD(totalValueCad * CAD_USD_RATE)}</Text>
                 </View>
 
-                <Section title=t.stats_summary colors={colors}>
-                  <StatRow label=t.stats_count       value={String(totalCards)}                                                    colors={colors} />
-                  <StatRow label=t.stats_unique         value={String(cards.length)}                                                  colors={colors} />
-                  <StatRow label=t.stats_avg          value={formatCAD(avgValue)}                                                   colors={colors} accent />
+                <Section title={t.stats_summary} colors={colors}>
+                  <StatRow label={t.stats_count}       value={String(totalCards)}                                                    colors={colors} />
+                  <StatRow label={t.stats_unique}         value={String(cards.length)}                                                  colors={colors} />
+                  <StatRow label={t.stats_avg}          value={formatCAD(avgValue)}                                                   colors={colors} accent />
                   {mostValuable  && <StatRow label="Carte la plus valuable"  value={`${mostValuable.player} — ${formatCAD(mostValuable.valueCad)}`}   colors={colors} />}
                   {leastValuable && <StatRow label="Carte la moins valuable" value={`${leastValuable.player} — ${formatCAD(leastValuable.valueCad)}`} colors={colors} />}
                   {topYear       && <StatRow label="Année la plus représentée" value={`${topYear[0]} (${topYear[1]} cartes)`}            colors={colors} />}
@@ -218,7 +218,7 @@ export default function StatsScreen() {
                   ))}
                 </View>
 
-                <Section title=t.stats_summary colors={colors}>
+                <Section title={t.stats_summary} colors={colors}>
                   <StatRow label="Nombre de ventes"    value={String(sales.length)}         colors={colors} />
                   <StatRow label="Prix moyen de vente" value={formatCAD(avgSalePrice)}       colors={colors} accent />
                   <StatRow label="Profit net total"    value={`${totalProfit >= 0 ? '+' : ''}${formatCAD(totalProfit)}`} colors={colors} />
