@@ -147,9 +147,7 @@ export default function CollectionScreen({ navigation }) {
                   onPress={() => navigation.navigate(a.route)}
                   activeOpacity={0.75}
                 >
-                  <View style={[s.actionIconBg, {backgroundColor: a.accent ? colors.accent+'25' : colors.border+'55'}]}>
-                    <Image source={icons[a.icon]} style={{width:30,height:30}} resizeMode="contain" />
-                  </View>
+                  <Image source={icons[a.icon]} style={s.actionIcon} resizeMode="contain" />
                   <Text style={[s.actionLabel, {color: a.accent ? colors.accent : colors.text}]}>{a.label}</Text>
                   <Text style={[s.actionSub, {color: colors.muted}]}>{a.sub}</Text>
                 </TouchableOpacity>
@@ -352,7 +350,7 @@ const s = StyleSheet.create({
   heroSub:      {color:'#AAC4E8', fontSize:12, marginTop:6, lineHeight:18},
   actionGrid:   {flexDirection:'row', flexWrap:'wrap', gap:10, padding:12, borderRadius:20, borderWidth:1, marginTop:16, marginBottom:16},
   actionBtn:    {width:'47%', borderWidth:1.5, borderRadius:16, padding:14, alignItems:'center', gap:6},
-  actionIconBg: {width:46, height:46, borderRadius:14, alignItems:'center', justifyContent:'center'},
+  actionIcon:   {width:64, height:64},
   actionLabel:  {fontSize:12, fontWeight:'700', textAlign:'center'},
   actionSub:    {fontSize:10, textAlign:'center'},
   sectionHeader:{flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:10, marginTop:8},

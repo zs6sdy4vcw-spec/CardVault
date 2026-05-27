@@ -86,7 +86,7 @@ function CustomTabBar({ state, navigation }) {
     { key: 'settings',   label: t.nav_settings,    icon: 'settings' },
   ];
 
-  const iconSize = width > 600 ? 32 : 26;
+  const iconSize = width > 600 ? 40 : 32;
 
   return (
     <View style={[styles.tabBarOuter, { paddingBottom: insets.bottom || 8 }]}>
@@ -237,6 +237,6 @@ const styles = StyleSheet.create({
     elevation: 14,
   },
   centerIcon: {
-    width: 30, height: 30,
+    width: 36, height: 36,
   },
 });
