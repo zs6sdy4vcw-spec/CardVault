@@ -109,11 +109,16 @@ function CustomTabBar({ state, navigation }) {
           if (tab.isCenter) {
             return (
               <TouchableOpacity key={tab.key} style={styles.centerWrap} onPress={onPress} activeOpacity={0.85}>
-                <View style={[styles.centerBtn, {
-                  backgroundColor: isDark ? colors.accent : colors.accent,
-                  shadowColor: colors.accentGlow,
-                }]}>
-                  <Image source={ICONS[tab.icon]} style={styles.centerIcon} resizeMode="contain" />
+                <View style={[
+                  styles.centerBtn,
+                  {
+                    backgroundColor: colors.accent,
+                    shadowColor: colors.accentGlow,
+                    borderWidth: 3,
+                    borderColor: isDark ? colors.accentGlow : '#FFFFFF',
+                  }
+                ]}>
+                  <Text style={{ color: '#FFFFFF', fontSize: 32, fontWeight: '300', marginTop: -2 }}>+</Text>
                 </View>
                 <Text style={[styles.tabLabel, { color: focused ? colors.accent : colors.tabInactive }]}>
                   {tab.label}

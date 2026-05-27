@@ -108,7 +108,7 @@ export default function CollectionScreen({ navigation }) {
             style={s.heroBanner}
             resizeMode="cover"
           />
-          <View style={[s.heroOverlay, {backgroundColor: isDark ? 'rgba(7,11,23,0.55)' : 'rgba(13,27,75,0.45)'}]}>
+          <View style={[s.heroOverlay, {backgroundColor: isDark ? 'rgba(7,11,23,0.35)' : 'rgba(13,27,75,0.25)'}]}>
             <Text style={s.heroPre}>{t.hero_welcome}</Text>
             <View style={{flexDirection:'row'}}>
               <Text style={s.heroTitle}>Card</Text>
@@ -121,7 +121,15 @@ export default function CollectionScreen({ navigation }) {
         <View style={{paddingHorizontal: width * 0.04}}>
 
           {/* ── Action Grid ── */}
-          <View style={[s.actionGrid, {backgroundColor: surf, borderColor: colors.border}]}>
+          <View style={[s.actionGrid, {
+            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+            borderColor: isDark ? colors.border : '#E8EFFF',
+            shadowColor: colors.accent,
+            shadowOffset: {width:0, height:4},
+            shadowOpacity: isDark ? 0.2 : 0.08,
+            shadowRadius: 12,
+            elevation: 4,
+          }]}>
             {[
               {icon:'collection', label:t.action_collection, sub:`${totalCards} ${t.action_cards}`, route:'Accueil'},
               {icon:'stats',      label:t.action_stats,      sub:t.action_total,  route:'Stats'},
@@ -141,8 +149,10 @@ export default function CollectionScreen({ navigation }) {
                 <TouchableOpacity
                   key={i}
                   style={[s.actionBtn, {
-                    borderColor: a.accent ? colors.accent : colors.border,
-                    backgroundColor: a.accent ? colors.accent+'15' : 'transparent',
+                    borderColor: a.accent ? colors.accent : (isDark ? colors.border : '#E8EFFF'),
+                    backgroundColor: a.accent
+                      ? colors.accent+'18'
+                      : (isDark ? colors.card : '#F8FAFF'),
                   }]}
                   onPress={() => navigation.navigate(a.route)}
                   activeOpacity={0.75}
