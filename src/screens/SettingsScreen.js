@@ -1,136 +1,154 @@
 import t from '../i18n/translations';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, SafeAreaView, Switch, useWindowDimensions, Image,
+  View, Text, StyleSheet, TouchableOpacity, Switch,
+  SafeAreaView, StatusBar, ScrollView, useWindowDimensions, Image, Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
+import { lang } from '../i18n/translations';
 
-function SettingRow({ label, sub, children, colors }) {
-  return (
-    <View style={[styles.row, { borderBottomColor: colors.border }]}>
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.rowLabel, { color: colors.text }]}>{label}</Text>
-        {sub && <Text style={[styles.rowSub, { color: colors.textSub }]}>{sub}</Text>}
+const APP_VERSION = '1.0.0';
+
+export default function SettingsScreen() {
+  const { colors, isDark, mode, setThemeMode } = useTheme();
+  const { width } = useWindowDimensions();
+  const [notifs, setNotifs]   = useState(true);
+  const [sounds, setSounds]   = useState(true);
+
+  const bg    = isDark ? '#070B17' : '#F5F7FC';
+  const surf  = isDark ? '#0F172A' : '#FFFFFF';
+  const card  = isDark ? '#111B33' : '#FFFFFF';
+  const text  = isDark ? '#F0F4FF' : '#070B17';
+  const sub   = isDark ? '#A0AEC0' : '#4A5A7A';
+  const muted = isDark ? '#3D5080' : '#8899BB';
+  const border= isDark ? '#1E2D4D' : '#E8EFFF';
+  const accent= colors.accent;
+
+  const SettingRow = ({ icon, label, value, onPress, right, isSwitch, switchVal, onSwitch, danger }) => (
+    <TouchableOpacity
+      style={[s.row, {borderBottomColor: border}]}
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+    >
+      <Text style={s.rowIcon}>{icon}</Text>
+      <Text style={[s.rowLabel, {color: danger ? '#FF4D6D' : text}]}>{label}</Text>
+      <View style={s.rowRight}>
+        {value && <Text style={[s.rowValue, {color: accent}]}>{value}</Text>}
+        {isSwitch && <Switch value={switchVal} onValueChange={onSwitch} trackColor={{false:'#3D5080', true: accent}} thumbColor={'#FFFFFF'} />}
+        {!isSwitch && onPress && <Text style={{color: muted, fontSize:18}}>›</Text>}
       </View>
+    </TouchableOpacity>
+  );
+
+  const SectionTitle = ({title}) => (
+    <Text style={[s.sectionTitle, {color: muted}]}>{title}</Text>
+  );
+
+  const SectionCard = ({children}) => (
+    <View style={[s.sectionCard, {backgroundColor: card, borderColor: border}]}>
       {children}
     </View>
   );
-}
 
-function ThemeBtn({ label, selected, onPress, colors }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.themeBtn, {
-        backgroundColor: selected ? colors.accentBg : colors.surface,
-        borderColor: selected ? colors.accent : colors.border,
-      }]}
-    >
-      <Text style={[styles.themeBtnTxt, { color: selected ? colors.accent : colors.textSub }]}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-export default function SettingsScreen() {
-  const { colors, mode, setThemeMode, isDark } = useTheme();
-  const { width } = useWindowDimensions();
+  const themeLabel = mode === 'dark' ? t.settings_theme_dark : mode === 'light' ? t.settings_theme_light : t.settings_theme_auto;
+  const langLabel  = lang === 'fr' ? 'Français' : 'English';
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.bg }]}>
-      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.text }]}>⚙️ Réglages</Text>
+    <SafeAreaView style={[s.safe, {backgroundColor: bg}]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={bg} />
+
+      {/* Header */}
+      <View style={[s.header, {backgroundColor: surf, borderBottomColor: border}]}>
+        <Text style={[s.pageTitle, {color: text}]}>{t.settings_title}</Text>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingHorizontal: width * 0.05 }]}>
+      <ScrollView contentContainerStyle={[s.scroll, {paddingHorizontal: width*0.04}]} showsVerticalScrollIndicator={false}>
 
-        {/* Logo app */}
-        <View style={[styles.logoSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Image
-            source={require('../../assets/icon.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={[styles.appName, { color: colors.text }]}>CardVault</Text>
-          <Text style={[styles.appVersion, { color: colors.textSub }]}>Version 1.0.0 · Collector Series</Text>
-        </View>
-
-        {/* Thème */}
-        <Text style={[styles.sectionTitle, { color: colors.textSub }]}>APPARENCE</Text>
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Thème de l'application</Text>
-          <View style={styles.themeBtns}>
-            <ThemeBtn label={t.settings_light}    selected={mode === 'light'}  onPress={() => setThemeMode('light')}  colors={colors} />
-            <ThemeBtn label={t.settings_dark}   selected={mode === 'dark'}   onPress={() => setThemeMode('dark')}   colors={colors} />
-            <ThemeBtn label={t.settings_system}  selected={mode === 'system'} onPress={() => setThemeMode('system')} colors={colors} />
+        {/* Profil utilisateur */}
+        <View style={[s.profileCard, {backgroundColor: card, borderColor: border}]}>
+          <View style={[s.profileAvatar, {backgroundColor: accent+'22', borderColor: accent+'44'}]}>
+            <Text style={{fontSize:28}}>🛡️</Text>
           </View>
-          <Text style={[styles.themeNote, { color: colors.muted }]}>
-            {mode === 'system' ? `${t.settings_theme_current} : ${isDark ? t.settings_theme_dark : t.settings_theme_light} (${t.settings_system_hint})` : ''}
-          </Text>
+          <View style={s.profileInfo}>
+            <Text style={[s.profileName, {color: text}]}>CardVault</Text>
+            <Text style={[s.profileEmail, {color: muted}]}>Collection personnelle</Text>
+          </View>
+          <Text style={{color: muted, fontSize:18}}>›</Text>
         </View>
 
-        {/* Collection */}
-        <Text style={[styles.sectionTitle, { color: colors.textSub, marginTop: 24 }]}>COLLECTION</Text>
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow label={t.settings_currency} sub={t.settings_currency_sub} colors={colors}>
-            <View style={[styles.badge, { backgroundColor: colors.accentBg, borderColor: colors.accent }]}>
-              <Text style={[styles.badgeTxt, { color: colors.accent }]}>CAD / USD</Text>
-            </View>
-          </SettingRow>
-          <SettingRow label={t.settings_sports} sub={t.settings_sports_sub} colors={colors}>
-            <Text style={{ fontSize: 18 }}>🏒🏈</Text>
-          </SettingRow>
-        </View>
+        {/* Général */}
+        <SectionTitle title="Général" />
+        <SectionCard>
+          <SettingRow icon="🌐" label={t.settings_language} value={langLabel} onPress={() => {}} />
+          <SettingRow
+            icon="🎨"
+            label={t.settings_theme}
+            value={themeLabel}
+            onPress={() => {
+              Alert.alert(t.settings_theme, '', [
+                { text: t.settings_theme_auto,  onPress: () => setThemeMode('system') },
+                { text: t.settings_theme_dark,  onPress: () => setThemeMode('dark') },
+                { text: t.settings_theme_light, onPress: () => setThemeMode('light') },
+                { text: t.cancel, style: 'cancel' },
+              ]);
+            }}
+          />
+          <SettingRow icon="💵" label={t.settings_currency} value="CAD ($)" onPress={() => {}} />
+          <SettingRow icon="🔔" label="Notifications" isSwitch switchVal={notifs} onSwitch={setNotifs} />
+          <SettingRow icon="🔊" label="Sons" isSwitch switchVal={sounds} onSwitch={setSounds} />
+        </SectionCard>
+
+        {/* Compte */}
+        <SectionTitle title="Compte" />
+        <SectionCard>
+          <SettingRow icon="🔒" label="Sécurité" onPress={() => {}} />
+          <SettingRow icon="⭐" label="Abonnement" value="Premium" onPress={() => {}} />
+          <SettingRow icon="☁️" label="Sauvegarde et synchronisation" onPress={() => {}} />
+        </SectionCard>
+
+        {/* Infos techniques */}
+        <SectionTitle title="Système" />
+        <SectionCard>
+          <SettingRow icon="🏒" label={t.settings_sports} value="NHL · NFL · NBA · MLB" />
+          <SettingRow icon="🛒" label={t.settings_ebay}   value="Browse API" />
+          <SettingRow icon="💾" label={t.settings_storage} value="AsyncStorage" />
+        </SectionCard>
 
         {/* À propos */}
-        <Text style={[styles.sectionTitle, { color: colors.textSub, marginTop: 24 }]}>À PROPOS</Text>
-        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow label={t.settings_version} colors={colors}>
-            <Text style={[styles.rowValue, { color: colors.textSub }]}>1.0.0</Text>
-          </SettingRow>
-          <SettingRow label={t.settings_ebay} sub={t.settings_ebay_sub} colors={colors}>
-            <View style={[styles.badge, { backgroundColor: colors.green + '22', borderColor: colors.green }]}>
-              <Text style={[styles.badgeTxt, { color: colors.green }]}>Actif</Text>
-            </View>
-          </SettingRow>
-          <SettingRow label={t.settings_storage} sub={t.settings_storage_sub} colors={colors}>
-            <Text style={[styles.rowValue, { color: colors.textSub }]}>Sur l'appareil</Text>
-          </SettingRow>
-        </View>
+        <SectionTitle title={t.settings_about} />
+        <SectionCard>
+          <SettingRow icon="ℹ️" label="À propos de CardVault" onPress={() =>
+            Alert.alert('CardVault', `Version ${APP_VERSION}\n\nGérez, suivez et protégez votre collection de cartes sportives.`, [{text:'OK'}])
+          } />
+          <SettingRow icon="✉️" label="Nous contacter" onPress={() => {}} />
+          <View style={[s.row, {borderBottomWidth:0}]}>
+            <Text style={[s.rowLabel, {color: muted}]}>{t.settings_version}</Text>
+            <Text style={[s.rowValue, {color: muted}]}>{APP_VERSION}</Text>
+          </View>
+        </SectionCard>
 
-        {/* Accent bleu nuit / cyan */}
-        <View style={[styles.accentBar, { backgroundColor: colors.navy, borderColor: colors.accent }]}>
-          <Text style={[styles.accentTxt, { color: colors.accent }]}>CardVault · NHL & NFL Collector</Text>
-        </View>
-
-        <View style={{ height: 32 }} />
+        <View style={{height:32}} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safe:         { flex: 1 },
-  header:       { padding: 16, borderBottomWidth: 1 },
-  title:        { fontSize: 22, fontWeight: '800' },
-  scroll:       { paddingVertical: 20 },
-  logoSection:  { alignItems: 'center', borderRadius: 16, borderWidth: 1, padding: 24, marginBottom: 24 },
-  logo:         { width: 80, height: 80, borderRadius: 18, marginBottom: 10 },
-  appName:      { fontSize: 20, fontWeight: '800', marginBottom: 4 },
-  appVersion:   { fontSize: 12, letterSpacing: 1 },
-  sectionTitle: { fontSize: 11, fontWeight: '600', letterSpacing: 2, marginBottom: 8 },
-  card:         { borderRadius: 14, borderWidth: 1, overflow: 'hidden', marginBottom: 4 },
-  cardTitle:    { fontSize: 14, fontWeight: '700', padding: 16, paddingBottom: 12 },
-  row:          { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1 },
-  rowLabel:     { fontSize: 14, fontWeight: '500' },
-  rowSub:       { fontSize: 12, marginTop: 2 },
-  rowValue:     { fontSize: 13 },
-  badge:        { borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-  badgeTxt:     { fontSize: 11, fontWeight: '700' },
-  themeBtns:    { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 },
-  themeBtn:     { flex: 1, borderWidth: 1.5, borderRadius: 10, paddingVertical: 10, alignItems: 'center' },
-  themeBtnTxt:  { fontSize: 12, fontWeight: '700' },
-  themeNote:    { fontSize: 11, textAlign: 'center', paddingHorizontal: 16, paddingBottom: 12 },
-  accentBar:    { borderWidth: 1, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 24 },
-  accentTxt:    { fontSize: 12, fontWeight: '700', letterSpacing: 2 },
+const s = StyleSheet.create({
+  safe:         {flex:1},
+  header:       {paddingHorizontal:20, paddingVertical:16, borderBottomWidth:1},
+  pageTitle:    {fontSize:24, fontWeight:'800'},
+  scroll:       {paddingVertical:20, gap:0},
+  profileCard:  {flexDirection:'row', alignItems:'center', borderWidth:1, borderRadius:20, padding:16, gap:14, marginBottom:24},
+  profileAvatar:{width:56, height:56, borderRadius:28, borderWidth:1, alignItems:'center', justifyContent:'center'},
+  profileInfo:  {flex:1},
+  profileName:  {fontSize:16, fontWeight:'700', marginBottom:2},
+  profileEmail: {fontSize:13},
+  sectionTitle: {fontSize:12, fontWeight:'700', letterSpacing:1.5, textTransform:'uppercase', marginBottom:8, marginTop:8, paddingHorizontal:4},
+  sectionCard:  {borderWidth:1, borderRadius:20, overflow:'hidden', marginBottom:16},
+  row:          {flexDirection:'row', alignItems:'center', paddingHorizontal:16, paddingVertical:14, borderBottomWidth:1, gap:12},
+  rowIcon:      {fontSize:18, width:28, textAlign:'center'},
+  rowLabel:     {flex:1, fontSize:14, fontWeight:'500'},
+  rowRight:     {flexDirection:'row', alignItems:'center', gap:8},
+  rowValue:     {fontSize:13, fontWeight:'600'},
 });
