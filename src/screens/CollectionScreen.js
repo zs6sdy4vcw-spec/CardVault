@@ -69,8 +69,8 @@ export default function CollectionScreen({ navigation }) {
   const surf = isDark ? colors.surface : '#FFFFFF';
 
   return (
-    <SafeAreaView style={[s.safe, { backgroundColor: isDark ? '#070B17' : '#FFFFFF' }]} edges={['top','left','right']}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#070B17' : '#FFFFFF'} />
+    <SafeAreaView style={[s.safe, { backgroundColor: isDark ? '#070B17' : '#F5F7FC' }]} edges={['top','left','right']}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#070B17' : '#F5F7FC'} />
 
       {/* ── Header ── */}
       <View style={[s.header, {
@@ -105,11 +105,11 @@ export default function CollectionScreen({ navigation }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 100}}
-        style={{ backgroundColor: isDark ? '#070B17' : '#FFFFFF' }}
+        style={{ backgroundColor: isDark ? '#070B17' : '#F5F7FC' }}
       >
 
         {/* ── Hero Banner ── */}
-        <View style={[s.heroWrap, { backgroundColor: isDark ? '#070B17' : '#FFFFFF' }]}>
+        <View style={[s.heroWrap, { backgroundColor: isDark ? '#070B17' : '#F5F7FC' }]}>
           <Image
             source={isDark
               ? require('../../assets/banner_dark.png')
@@ -145,9 +145,13 @@ export default function CollectionScreen({ navigation }) {
 
           {/* ── Action Grid ── */}
           <View style={[s.actionGrid, {
-            backgroundColor: 'transparent',
-            borderColor: 'transparent',
-            borderWidth: 0,
+            backgroundColor: isDark ? colors.surface : '#FFFFFF',
+            borderColor: isDark ? colors.border : '#E8EFFF',
+            shadowColor: '#000',
+            shadowOffset: {width:0, height:2},
+            shadowOpacity: 0.06,
+            shadowRadius: 8,
+            elevation: 3,
           }]}>
             {[
               {icon:'collection', label:t.action_collection, sub:`${totalCards} ${t.action_cards}`, route:'Accueil'},
@@ -172,11 +176,6 @@ export default function CollectionScreen({ navigation }) {
                     backgroundColor: a.accent
                       ? colors.accent+'18'
                       : (isDark ? colors.card : '#FFFFFF'),
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: isDark ? 0.3 : 0.08,
-                    shadowRadius: 8,
-                    elevation: 3,
                   }]}
                   onPress={() => navigation.navigate(a.route)}
                   activeOpacity={0.75}
