@@ -457,6 +457,7 @@ export default function AddCardScreen({ navigation, route }) {
 
         <View style={{ height: 32 }} />
       </ScrollView>
+      )}
 
       {/* ── Modal sélection photo eBay ──────────────────────────────────── */}
       <Modal visible={photoModalVisible} animationType="slide" onRequestClose={() => setPhotoModalVisible(false)}>
@@ -493,10 +494,6 @@ export default function AddCardScreen({ navigation, route }) {
           </ScrollView>
         </SafeAreaView>
       </Modal>
-
-      {/* Ferme le tab Manuel ScrollView */}
-      {addTab === 1 && null}
-      )}
 
     </SafeAreaView>
   );
