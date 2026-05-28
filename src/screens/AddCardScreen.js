@@ -326,7 +326,7 @@ export default function AddCardScreen({ navigation, route }) {
         {/* ── Formulaire ───────────────────────────────────────────────── */}
         <View style={[styles.form, { backgroundColor: colors.card, borderColor: colors.border }]}>
 
-          <Label text=t.add_sport />
+          <Label text={t.add_sport} />
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.sportRow}>
               {SPORTS.map(s => (
@@ -346,10 +346,10 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           </ScrollView>
 
-          <Label text=t.add_player />
+          <Label text={t.add_player} />
           <TextInput style={inputStyle} placeholder="Connor McDavid" placeholderTextColor={colors.muted} value={form.player} onChangeText={v => setField('player', v)} />
 
-          <Label text=t.add_team />
+          <Label text={t.add_team} />
           <TextInput style={inputStyle} placeholder="Edmonton Oilers" placeholderTextColor={colors.muted} value={form.team} onChangeText={handleTeamChange} />
           {teamSuggestions.length > 0 && (
             <View style={[styles.suggestions, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -371,16 +371,16 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           )}
 
-          <Label text=t.add_year />
+          <Label text={t.add_year} />
           <TextInput style={inputStyle} placeholder="2015-16" placeholderTextColor={colors.muted} value={form.year} onChangeText={v => setField('year', v)} />
 
-          <Label text=t.add_set />
+          <Label text={t.add_set} />
           <TextInput style={inputStyle} placeholder="Upper Deck Young Guns" placeholderTextColor={colors.muted} value={form.set} onChangeText={v => setField('set', v)} />
 
-          <Label text=t.add_number />
+          <Label text={t.add_number} />
           <TextInput style={inputStyle} placeholder="Ex: 201, RC-15…" placeholderTextColor={colors.muted} value={form.cardNumber} onChangeText={v => setField('cardNumber', v)} />
 
-          <Label text=t.add_condition />
+          <Label text={t.add_condition} />
           <TouchableOpacity style={[inputStyle, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]} onPress={() => setCondOpen(!condOpen)}>
             <Text style={{ color: colors.text, fontSize: 14 }}>{form.condition}</Text>
             <Text style={{ color: colors.muted }}>{condOpen ? '▲' : '▼'}</Text>
@@ -410,7 +410,7 @@ export default function AddCardScreen({ navigation, route }) {
           )}
 
           {/* Devise */}
-          <Label text=t.add_currency />
+          <Label text={t.add_currency} />
           <View style={styles.currencyRow}>
             {['CAD', 'USD'].map(c => (
               <TouchableOpacity
@@ -447,7 +447,7 @@ export default function AddCardScreen({ navigation, route }) {
             </View>
           </View>
 
-          <Label text=t.add_notes />
+          <Label text={t.add_notes} />
           <TextInput style={[inputStyle, { height: 76, textAlignVertical: 'top' }]} placeholder="RC, autographe, numérotée…" placeholderTextColor={colors.muted} value={form.notes} onChangeText={v => setField('notes', v)} multiline />
 
           <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.accent, marginTop: 20 }]} onPress={handleAdd}>
