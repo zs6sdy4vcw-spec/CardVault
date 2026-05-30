@@ -145,8 +145,8 @@ export default function CollectionScreen({ navigation }) {
 
           {/* ── Action Grid ── */}
           <View style={[s.actionGrid, {
-            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-            borderColor: isDark ? colors.border : '#E8EFFF',
+            backgroundColor: isDark ? '#0B0F14' : '#F6F6FA',
+            borderColor: isDark ? '#1E2D4D' : '#E8EFFF',
             shadowColor: '#000',
             shadowOffset: {width:0, height:2},
             shadowOpacity: 0.06,
@@ -195,8 +195,8 @@ export default function CollectionScreen({ navigation }) {
           </View>
 
           <View style={[s.overviewRow, {
-            backgroundColor: isDark ? colors.surface : '#FFFFFF',
-            borderColor: isDark ? colors.border : '#E8EFFF',
+            backgroundColor: isDark ? '#0B0F14' : '#F6F6FA',
+            borderColor: isDark ? '#1E2D4D' : '#E8EFFF',
           }]}>
             {[
               {emoji:'🃏', val: String(totalCards),    label: t.overview_cards, color:'#7C4DFF'},

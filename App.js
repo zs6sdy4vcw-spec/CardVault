@@ -86,14 +86,14 @@ function CustomTabBar({ state, navigation }) {
     { key: 'settings',   label: t.nav_settings,    icon: 'settings' },
   ];
 
-  const iconSize = width > 600 ? 40 : 32;
+  const iconSize = width > 600 ? 52 : 42;
 
   return (
     <View style={[styles.tabBarOuter, { paddingBottom: insets.bottom || 8 }]}>
       <View style={[
         styles.tabBarInner,
         {
-          backgroundColor: isDark ? colors.surface : '#FFFFFF',
+          backgroundColor: isDark ? '#0B0F14' : '#F6F6FA',
           borderColor: isDark ? colors.borderGlow : colors.border,
           shadowColor: colors.accent,
         },
